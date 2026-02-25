@@ -6,103 +6,331 @@
     <title>Dashboard - Academic Performance System</title>
     <link rel="stylesheet" href="css/style.css" />
     <style>
-      .risk-badge {
-        padding: 5px 10px;
-        border-radius: 20px;
+      /* Simple statistics grid */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+
+      .stat-card {
+        background: white;
+        padding: 20px;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+        text-align: center;
+      }
+
+      .stat-label {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 5px;
+      }
+
+      .stat-value {
+        font-size: 28px;
         font-weight: bold;
-        font-size: 0.85rem;
+        color: #333;
+      }
+
+      .stat-percentage {
+        font-size: 14px;
+        color: #666;
+        margin-top: 5px;
+      }
+
+      /* Risk badges */
+      .risk-badge {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: bold;
         display: inline-block;
       }
+
       .risk-badge.high {
-        background-color: #ffebee;
-        color: #c62828;
-        border: 1px solid #ef9a9a;
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
       }
+
       .risk-badge.medium {
-        background-color: #fff3e0;
-        color: #ef6c00;
-        border: 1px solid #ffb74d;
+        background-color: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeeba;
       }
+
       .risk-badge.low {
-        background-color: #e8f5e8;
-        color: #2e7d32;
-        border: 1px solid #a5d6a7;
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
       }
-      .stat-card {
-        transition: transform 0.2s;
-      }
-      .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-      }
+
+      /* Filter container */
       .filter-container {
         display: flex;
-        gap: 15px;
+        gap: 10px;
         margin-bottom: 20px;
         flex-wrap: wrap;
       }
+
       .filter-container input,
       .filter-container select {
-        padding: 8px 12px;
+        padding: 8px;
         border: 1px solid #ddd;
-        border-radius: 5px;
+        border-radius: 4px;
         font-size: 14px;
       }
+
       .filter-container input {
         flex: 1;
         min-width: 200px;
       }
-      .filter-container select {
-        min-width: 150px;
+
+      /* Table */
+      .table {
+        width: 100%;
+        border-collapse: collapse;
       }
-      .metric-card {
-        text-align: center;
-        padding: 15px;
-        background: #f8f9fa;
-        border-radius: 8px;
-        border-left: 4px solid #3498db;
+
+      .table th {
+        background-color: #f8f9fa;
+        padding: 12px;
+        text-align: left;
+        font-weight: 600;
+        border-bottom: 2px solid #dee2e6;
       }
-      .metric-value {
-        font-size: 24px;
-        font-weight: bold;
-        color: #2c3e50;
+
+      .table td {
+        padding: 10px 12px;
+        border-bottom: 1px solid #dee2e6;
       }
-      .metric-label {
+
+      .table tr:hover {
+        background-color: #f8f9fa;
+      }
+
+      /* Buttons */
+      .btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
         font-size: 14px;
-        color: #7f8c8d;
-        margin-top: 5px;
+        background-color: #f8f9fa;
+        border: 1px solid #ddd;
       }
+
+      .btn-primary {
+        background-color: #007bff;
+        color: white;
+        border: none;
+      }
+
+      .btn-primary:hover {
+        background-color: #0056b3;
+      }
+
+      .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+        border: none;
+      }
+
+      .btn-secondary:hover {
+        background-color: #545b62;
+      }
+
       .refresh-btn {
-        background: #3498db;
+        background-color: #28a745;
         color: white;
         border: none;
         padding: 8px 16px;
-        border-radius: 5px;
+        border-radius: 4px;
         cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        transition: background 0.3s;
       }
+
       .refresh-btn:hover {
-        background: #2980b9;
+        background-color: #218838;
       }
+
       .refresh-btn:disabled {
-        background: #bdc3c7;
+        background-color: #6c757d;
         cursor: not-allowed;
       }
+
+      /* Cards */
+      .card {
+        background: white;
+        border-radius: 5px;
+        padding: 20px;
+        margin-bottom: 20px;
+        border: 1px solid #ddd;
+      }
+
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+      }
+
+      .card-title {
+        font-size: 18px;
+        font-weight: bold;
+        margin: 0;
+      }
+
+      /* Navigation */
+      .navbar {
+        background-color: #333;
+        padding: 1rem;
+        margin-bottom: 20px;
+      }
+
+      .navbar .container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .navbar-brand {
+        color: white;
+        text-decoration: none;
+        font-size: 1.2rem;
+        font-weight: bold;
+      }
+
+      .navbar-nav {
+        list-style: none;
+        display: flex;
+        gap: 20px;
+        margin: 0;
+        padding: 0;
+      }
+
+      .navbar-nav a {
+        color: white;
+        text-decoration: none;
+        padding: 5px 10px;
+      }
+
+      .navbar-nav a:hover,
+      .navbar-nav a.active {
+        background-color: #555;
+        border-radius: 3px;
+      }
+
+      /* Spinner */
+      .spinner {
+        display: inline-block;
+        width: 30px;
+        height: 30px;
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #3498db;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Warning */
       .prediction-warning {
         background-color: #fff3cd;
+        border: 1px solid #ffeeba;
         color: #856404;
         padding: 15px;
-        border-radius: 5px;
+        border-radius: 4px;
         margin-bottom: 20px;
         display: flex;
         align-items: center;
         gap: 10px;
       }
-      .prediction-warning button {
-        margin-left: auto;
+
+      /* Metrics grid */
+      .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+
+      .metric-card {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+        text-align: center;
+      }
+
+      .metric-value {
+        font-size: 20px;
+        font-weight: bold;
+        color: #333;
+      }
+
+      .metric-label {
+        font-size: 12px;
+        color: #666;
+        margin-top: 5px;
+      }
+
+      /* Pagination */
+      #pagination {
+        margin-top: 20px;
+        display: flex;
+        justify-content: center;
+        gap: 5px;
+      }
+
+      #pagination button {
+        padding: 5px 10px;
+        border: 1px solid #ddd;
+        background: white;
+        cursor: pointer;
+      }
+
+      #pagination button:hover {
+        background: #f8f9fa;
+      }
+
+      #pagination button:disabled {
+        background: #f8f9fa;
+        cursor: not-allowed;
+      }
+
+      /* Debug panel */
+      .debug-panel {
+        background: #f8f9fa;
+        border: 1px solid #ddd;
+        margin-top: 20px;
+      }
+
+      .debug-output {
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 15px;
+        max-height: 300px;
+        overflow: auto;
+        font-family: monospace;
+        font-size: 12px;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
       }
     </style>
   </head>
@@ -131,10 +359,9 @@
             onclick="refreshDashboard()"
             id="refreshBtn"
           >
-            <span>↻</span> Refresh Data
+            ↻ Refresh
           </button>
         </div>
-
         <div class="stats-grid" id="statistics">
           <!-- Statistics will be loaded here -->
         </div>
@@ -143,30 +370,28 @@
       <!-- Model Metrics -->
       <div class="card">
         <div class="card-header">
-          <h2 class="card-title">Model Performance Metrics</h2>
+          <h2 class="card-title">Model Performance</h2>
         </div>
         <div class="metrics-grid" id="metrics">
           <!-- Metrics will be loaded here -->
         </div>
       </div>
 
-      <!-- Prediction Warning (shown if scores are 0) -->
+      <!-- Prediction Warning -->
       <div
         id="predictionWarning"
         class="prediction-warning"
         style="display: none"
       >
         <span>⚠️</span>
-        <strong>Prediction scores showing 0.0</strong>
-        <span style="flex: 1"
-          >This usually means predictions haven't been generated yet.</span
-        >
+        <strong>No predictions found.</strong>
+        <span style="flex: 1">Click the button to generate predictions.</span>
         <button class="btn btn-primary" onclick="generatePredictions()">
-          Generate Predictions Now
+          Generate Now
         </button>
       </div>
 
-      <!-- Students Risk Table -->
+      <!-- Students Table -->
       <div class="card">
         <div class="card-header">
           <h2 class="card-title">Student Risk Analysis</h2>
@@ -176,7 +401,7 @@
           <input
             type="text"
             id="searchInput"
-            placeholder="Search by name or matric number..."
+            placeholder="Search by name or matric..."
             onkeyup="filterStudents()"
           />
           <select id="levelFilter" onchange="filterStudents()">
@@ -188,60 +413,48 @@
             <option value="500">500 Level</option>
           </select>
           <select id="riskFilter" onchange="filterStudents()">
-            <option value="">All Risk Levels</option>
-            <option value="High">High Risk Only</option>
-            <option value="Medium">Medium Risk Only</option>
-            <option value="Low">Low Risk Only</option>
+            <option value="">All Risks</option>
+            <option value="High">High Risk</option>
+            <option value="Medium">Medium Risk</option>
+            <option value="Low">Low Risk</option>
           </select>
           <button class="btn btn-secondary" onclick="exportToCSV()">
-            Export to CSV
+            Export CSV
           </button>
         </div>
 
         <div class="table-responsive">
-          <table class="table" id="studentsTable">
+          <table class="table">
             <thead>
               <tr>
                 <th>Matric No</th>
                 <th>Name</th>
                 <th>Level</th>
                 <th>Department</th>
-                <th>Attendance %</th>
+                <th>Attendance</th>
                 <th>Assessment Avg</th>
                 <th>Predicted Score</th>
                 <th>Risk Status</th>
               </tr>
             </thead>
             <tbody id="studentsBody">
-              <tr id="loadingRow">
+              <tr>
                 <td colspan="8" style="text-align: center; padding: 40px">
                   <div class="spinner"></div>
-                  <p style="margin-top: 15px; color: #666">
-                    Loading student data...
-                  </p>
+                  <p style="margin-top: 15px; color: #666">Loading...</p>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        <div
-          id="pagination"
-          style="
-            margin-top: 20px;
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-          "
-        >
-          <!-- Pagination will be added here -->
-        </div>
+        <div id="pagination"></div>
       </div>
 
       <!-- Debug Panel -->
-      <div class="card" style="margin-top: 20px; background-color: #f8f9fa">
+      <div class="card debug-panel">
         <div class="card-header">
-          <h3 class="card-title">🔧 Debug Panel</h3>
+          <h3 class="card-title">Debug Panel</h3>
         </div>
         <div class="card-body">
           <div
@@ -252,36 +465,22 @@
               margin-bottom: 15px;
             "
           >
-            <button class="btn btn-secondary" onclick="debugPredictions()">
-              Debug Predictions
+            <button class="btn" onclick="debugPredictions()">
+              Predictions
             </button>
-            <button class="btn btn-secondary" onclick="debugStudents()">
-              Debug Students
-            </button>
-            <button class="btn btn-secondary" onclick="debugAssessments()">
-              Debug Assessments
+            <button class="btn" onclick="debugStudents()">Students</button>
+            <button class="btn" onclick="debugAssessments()">
+              Assessments
             </button>
             <button class="btn btn-warning" onclick="forceReload()">
               Force Reload
             </button>
             <button class="btn btn-danger" onclick="testPredictionGeneration()">
-              Test Generate Prediction
+              Test Generate
             </button>
           </div>
-          <div
-            id="debugOutput"
-            style="
-              background: white;
-              border: 1px solid #ccc;
-              border-radius: 5px;
-              padding: 15px;
-              max-height: 400px;
-              overflow: auto;
-              font-family: monospace;
-              font-size: 12px;
-            "
-          >
-            Click a debug button to see data...
+          <div id="debugOutput" class="debug-output">
+            Click a button to see data...
           </div>
         </div>
       </div>
@@ -289,25 +488,6 @@
 
     <script src="js/main.js"></script>
     <script>
-      // Add spinner animation
-      const style = document.createElement("style");
-      style.textContent = `
-            @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-            }
-            .spinner {
-                display: inline-block;
-                width: 40px;
-                height: 40px;
-                border: 4px solid #f3f3f3;
-                border-top: 4px solid #3498db;
-                border-radius: 50%;
-                animation: spin 1s linear infinite;
-            }
-        `;
-      document.head.appendChild(style);
-
       // Global variables
       let allStudents = [];
       let filteredStudents = [];
@@ -318,7 +498,7 @@
 
       // Load data on page load
       document.addEventListener("DOMContentLoaded", function () {
-        console.log("📊 Dashboard loaded");
+        console.log("Dashboard loaded");
         loadAllData();
       });
 
@@ -327,7 +507,6 @@
         showLoading();
 
         try {
-          // Load all data in parallel
           const [stats, modelMetrics, studentsData] = await Promise.all([
             apiCall("/dashboard/statistics").catch((err) => {
               console.error("Failed to load statistics:", err);
@@ -343,38 +522,29 @@
             }),
           ]);
 
-          // Update global variables
           statistics = stats;
           metrics = modelMetrics;
           allStudents = studentsData || [];
           filteredStudents = [...allStudents];
 
-          console.log("📊 Data loaded:", {
-            statistics: statistics,
-            metrics: metrics,
-            students: allStudents.length,
-          });
-
-          // Check for zero predicted scores
+          // Check for zero scores
           const hasZeroScores = allStudents.some(
             (s) => s.predicted_score === 0,
           );
           document.getElementById("predictionWarning").style.display =
             hasZeroScores ? "flex" : "none";
 
-          // Display the data
           displayStatistics();
           displayMetrics();
           displayStudents();
         } catch (error) {
-          console.error("❌ Error loading dashboard data:", error);
-          showAlert("Failed to load dashboard data", "danger");
+          console.error("Error loading data:", error);
+          showAlert("Failed to load data", "danger");
         } finally {
           hideLoading();
         }
       }
 
-      // Show/hide loading
       function showLoading() {
         const tbody = document.getElementById("studentsBody");
         if (tbody) {
@@ -382,60 +552,51 @@
                     <tr>
                         <td colspan="8" style="text-align: center; padding: 40px;">
                             <div class="spinner"></div>
-                            <p style="margin-top: 15px; color: #666;">Loading student data...</p>
+                            <p style="margin-top: 15px;">Loading...</p>
                         </td>
                     </tr>
                 `;
         }
       }
 
-      function hideLoading() {
-        // Loading is removed when displayStudents is called
-      }
+      function hideLoading() {}
 
-      // Display statistics
       function displayStatistics() {
         const statsGrid = document.getElementById("statistics");
 
         if (!statistics) {
-          statsGrid.innerHTML =
-            '<p style="text-align: center; padding: 20px;">No statistics available</p>';
+          statsGrid.innerHTML = "<p>No statistics available</p>";
           return;
         }
 
         statsGrid.innerHTML = `
-                <div class="stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <div class="stat-card">
                     <div class="stat-label">Total Students</div>
                     <div class="stat-value">${statistics.total_students}</div>
                 </div>
-                <div class="stat-card low-risk" style="background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); color: white;">
+                <div class="stat-card">
                     <div class="stat-label">Low Risk</div>
                     <div class="stat-value">${statistics.low_risk}</div>
-                    <div>${statistics.low_risk_percentage?.toFixed(1) || 0}%</div>
+                    <div class="stat-percentage">${statistics.low_risk_percentage?.toFixed(1) || 0}%</div>
                 </div>
-                <div class="stat-card medium-risk" style="background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%); color: white;">
+                <div class="stat-card">
                     <div class="stat-label">Medium Risk</div>
                     <div class="stat-value">${statistics.medium_risk}</div>
-                    <div>${statistics.medium_risk_percentage?.toFixed(1) || 0}%</div>
+                    <div class="stat-percentage">${statistics.medium_risk_percentage?.toFixed(1) || 0}%</div>
                 </div>
-                <div class="stat-card high-risk" style="background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%); color: white;">
+                <div class="stat-card">
                     <div class="stat-label">High Risk</div>
                     <div class="stat-value">${statistics.high_risk}</div>
-                    <div>${statistics.high_risk_percentage?.toFixed(1) || 0}%</div>
+                    <div class="stat-percentage">${statistics.high_risk_percentage?.toFixed(1) || 0}%</div>
                 </div>
             `;
       }
 
-      // Display model metrics
       function displayMetrics() {
         const metricsGrid = document.getElementById("metrics");
 
         if (!metrics || metrics.message) {
-          metricsGrid.innerHTML = `
-                    <div class="metric-card" style="grid-column: 1/-1;">
-                        <p style="color: #666; margin: 0;">${metrics?.message || "No metrics available. Train the model first."}</p>
-                    </div>
-                `;
+          metricsGrid.innerHTML = "<p>No metrics available</p>";
           return;
         }
 
@@ -459,7 +620,6 @@
             `;
       }
 
-      // Display students with pagination
       function displayStudents() {
         const tbody = document.getElementById("studentsBody");
 
@@ -467,23 +627,19 @@
           tbody.innerHTML = `
                     <tr>
                         <td colspan="8" style="text-align: center; padding: 40px;">
-                            <p style="font-size: 16px; color: #666;">📊 No student data available</p>
-                            <p style="font-size: 14px; color: #999; margin-top: 10px;">Add students and generate predictions first</p>
+                            <p>No student data available</p>
                         </td>
                     </tr>
                 `;
           return;
         }
 
-        // Apply filters
         applyFilters();
 
-        // Calculate pagination
         const start = (currentPage - 1) * rowsPerPage;
         const end = start + rowsPerPage;
         const paginatedStudents = filteredStudents.slice(start, end);
 
-        // Build table HTML
         let html = "";
         paginatedStudents.forEach((student) => {
           const riskClass = (student.risk_status || "Low").toLowerCase();
@@ -497,19 +653,12 @@
             ? student.predicted_score.toFixed(1)
             : "0.0";
 
-          // Highlight rows based on risk
-          let rowStyle = "";
-          if (student.risk_status === "High")
-            rowStyle = "background-color: #ffebee;";
-          else if (student.risk_status === "Medium")
-            rowStyle = "background-color: #fff3e0;";
-
           html += `
-                    <tr style="${rowStyle}">
-                        <td><strong>${escapeHtml(student.matric_no || "N/A")}</strong></td>
-                        <td>${escapeHtml(student.student_name || "N/A")}</td>
+                    <tr>
+                        <td>${student.matric_no || "N/A"}</td>
+                        <td>${student.student_name || "N/A"}</td>
                         <td>${student.level || "N/A"}</td>
-                        <td>${escapeHtml(student.department || "N/A")}</td>
+                        <td>${student.department || "N/A"}</td>
                         <td>${attendance}${attendance !== "N/A" ? "%" : ""}</td>
                         <td>${assessmentAvg}</td>
                         <td><strong>${predictedScore}</strong></td>
@@ -522,7 +671,6 @@
         updatePagination();
       }
 
-      // Apply filters
       function applyFilters() {
         const searchTerm =
           document.getElementById("searchInput")?.value.toLowerCase() || "";
@@ -530,7 +678,6 @@
         const riskFilter = document.getElementById("riskFilter")?.value || "";
 
         filteredStudents = allStudents.filter((student) => {
-          // Search filter
           const matchesSearch =
             searchTerm === "" ||
             (student.student_name &&
@@ -538,27 +685,21 @@
             (student.matric_no &&
               student.matric_no.toLowerCase().includes(searchTerm));
 
-          // Level filter
           const matchesLevel =
             levelFilter === "" || student.level == levelFilter;
-
-          // Risk filter
           const matchesRisk =
             riskFilter === "" || student.risk_status === riskFilter;
 
           return matchesSearch && matchesLevel && matchesRisk;
         });
 
-        // Reset to first page when filters change
         currentPage = 1;
       }
 
-      // Filter students (called from input events)
       function filterStudents() {
         displayStudents();
       }
 
-      // Update pagination controls
       function updatePagination() {
         const paginationDiv = document.getElementById("pagination");
         const totalPages = Math.ceil(filteredStudents.length / rowsPerPage);
@@ -568,99 +709,58 @@
           return;
         }
 
-        let paginationHtml =
-          '<button class="btn btn-secondary btn-sm" onclick="changePage(1)" ' +
-          (currentPage === 1 ? "disabled" : "") +
-          ">First</button>";
-
-        paginationHtml +=
-          '<button class="btn btn-secondary btn-sm" onclick="changePage(' +
-          (currentPage - 1) +
-          ')" ' +
-          (currentPage === 1 ? "disabled" : "") +
-          ">Previous</button>";
-
-        paginationHtml += `<span style="margin: 0 10px; line-height: 30px;">Page ${currentPage} of ${totalPages}</span>`;
-
-        paginationHtml +=
-          '<button class="btn btn-secondary btn-sm" onclick="changePage(' +
-          (currentPage + 1) +
-          ')" ' +
-          (currentPage === totalPages ? "disabled" : "") +
-          ">Next</button>";
-
-        paginationHtml +=
-          '<button class="btn btn-secondary btn-sm" onclick="changePage(' +
-          totalPages +
-          ')" ' +
-          (currentPage === totalPages ? "disabled" : "") +
-          ">Last</button>";
-
-        paginationDiv.innerHTML = paginationHtml;
+        let html = "";
+        for (let i = 1; i <= totalPages; i++) {
+          html += `<button onclick="changePage(${i})" ${i === currentPage ? "disabled" : ""}>${i}</button>`;
+        }
+        paginationDiv.innerHTML = html;
       }
 
-      // Change page
       function changePage(page) {
         currentPage = page;
         displayStudents();
       }
 
-      // Generate predictions
       async function generatePredictions() {
         try {
           const refreshBtn = document.getElementById("refreshBtn");
           refreshBtn.disabled = true;
-          refreshBtn.innerHTML = "<span>↻</span> Generating...";
-
-          showAlert("Generating predictions...", "info");
+          refreshBtn.textContent = "Generating...";
 
           const result = await apiCall("/prediction/generate-all", "POST");
           showAlert(
-            `✅ Generated predictions for ${result.predictions.length} students`,
+            `Generated predictions for ${result.predictions.length} students`,
           );
-
-          // Reload data
           await loadAllData();
         } catch (error) {
           console.error("Failed to generate predictions:", error);
-          showAlert(
-            "Failed to generate predictions: " + error.message,
-            "danger",
-          );
+          showAlert("Failed to generate predictions", "danger");
         } finally {
           const refreshBtn = document.getElementById("refreshBtn");
           refreshBtn.disabled = false;
-          refreshBtn.innerHTML = "<span>↻</span> Refresh Data";
+          refreshBtn.innerHTML = "↻ Refresh";
         }
       }
 
-      // Refresh dashboard
       async function refreshDashboard() {
         const refreshBtn = document.getElementById("refreshBtn");
         refreshBtn.disabled = true;
-        refreshBtn.innerHTML = "<span>↻</span> Refreshing...";
-
+        refreshBtn.innerHTML = "↻ Refreshing...";
         await loadAllData();
-
         refreshBtn.disabled = false;
-        refreshBtn.innerHTML = "<span>↻</span> Refresh Data";
+        refreshBtn.innerHTML = "↻ Refresh";
       }
 
-      // Force reload
       function forceReload() {
-        console.log("🔄 Force reloading...");
-        showAlert("Reloading data...", "info");
         loadAllData();
       }
 
-      // Export to CSV
       function exportToCSV() {
         if (!filteredStudents || filteredStudents.length === 0) {
           showAlert("No data to export", "warning");
           return;
         }
 
-        // Create CSV content
         const headers = [
           "Matric No",
           "Name",
@@ -687,99 +787,58 @@
           ...rows.map((row) => row.map((cell) => `"${cell}"`).join(",")),
         ].join("\n");
 
-        // Download CSV
         const blob = new Blob([csvContent], { type: "text/csv" });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `student_risk_report_${new Date().toISOString().split("T")[0]}.csv`;
+        a.download = `student_risk_${new Date().toISOString().split("T")[0]}.csv`;
         a.click();
         window.URL.revokeObjectURL(url);
-
-        showAlert(
-          `Exported ${filteredStudents.length} students to CSV`,
-          "success",
-        );
       }
 
       // Debug functions
       async function debugPredictions() {
         const output = document.getElementById("debugOutput");
-        output.innerHTML = "<h4>🔮 Predictions Debug:</h4>";
-
         try {
-          const predictions = await apiCall("/prediction/all");
-          output.innerHTML += `<p>Total predictions: <strong>${predictions.length}</strong></p>`;
-          output.innerHTML +=
-            "<pre>" + JSON.stringify(predictions, null, 2) + "</pre>";
+          const data = await apiCall("/prediction/all");
+          output.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
         } catch (err) {
-          output.innerHTML += `<p style="color: red;">❌ Error: ${err.message}</p>`;
+          output.innerHTML = `Error: ${err.message}`;
         }
       }
 
       async function debugStudents() {
         const output = document.getElementById("debugOutput");
-        output.innerHTML = "<h4>👥 Students Debug:</h4>";
-        output.innerHTML += `<p>Local students: <strong>${allStudents.length}</strong></p>`;
-        output.innerHTML +=
-          "<pre>" + JSON.stringify(allStudents, null, 2) + "</pre>";
+        output.innerHTML = `<pre>${JSON.stringify(allStudents, null, 2)}</pre>`;
       }
 
       async function debugAssessments() {
         const output = document.getElementById("debugOutput");
-        output.innerHTML = "<h4>📝 Assessments Debug:</h4>";
-
         try {
-          const assessments = await apiCall("/lecturer/assessments/");
-          output.innerHTML += `<p>Total assessments: <strong>${assessments.length}</strong></p>`;
-          output.innerHTML +=
-            "<pre>" + JSON.stringify(assessments, null, 2) + "</pre>";
+          const data = await apiCall("/lecturer/assessments/");
+          output.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
         } catch (err) {
-          output.innerHTML += `<p style="color: red;">❌ Error: ${err.message}</p>`;
+          output.innerHTML = `Error: ${err.message}`;
         }
       }
 
       async function testPredictionGeneration() {
         const output = document.getElementById("debugOutput");
-        output.innerHTML = "<h4>🧪 Testing Prediction Generation:</h4>";
-
         try {
-          // Get first student
           const students = await apiCall("/admin/students/");
           if (students.length === 0) {
-            output.innerHTML +=
-              '<p style="color: red;">❌ No students found</p>';
+            output.innerHTML = "No students found";
             return;
           }
-
-          output.innerHTML += `<p>Testing with student: ${students[0].name}</p>`;
-
-          // Generate prediction for first student
           const result = await apiCall(
             `/prediction/generate/${students[0].id}`,
             "POST",
           );
-          output.innerHTML +=
-            '<p style="color: green;">✅ Prediction generated:</p>';
-          output.innerHTML +=
-            "<pre>" + JSON.stringify(result, null, 2) + "</pre>";
-
-          // Refresh dashboard
+          output.innerHTML = `<pre>${JSON.stringify(result, null, 2)}</pre>`;
           await loadAllData();
         } catch (err) {
-          output.innerHTML += `<p style="color: red;">❌ Error: ${err.message}</p>`;
+          output.innerHTML = `Error: ${err.message}`;
         }
-      }
-
-      // Escape HTML helper
-      function escapeHtml(unsafe) {
-        if (!unsafe) return unsafe;
-        return unsafe
-          .replace(/&/g, "&amp;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;")
-          .replace(/"/g, "&quot;")
-          .replace(/'/g, "&#039;");
       }
 
       // Make functions global
