@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Academic Performance Prediction System</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="container">
+        <a href="index.html" class="navbar-brand"
+          >Academic Performance System</a
+        >
+        <ul class="navbar-nav">
+          <li><a href="index.html" class="active">Home</a></li>
+          <li><a href="admin.html">Admin</a></li>
+          <li><a href="lecturer.html">Lecturer</a></li>
+          <li><a href="dashboard.html">Dashboard</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="container">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">
+            Welcome to Academic Performance Prediction System
+          </h2>
+        </div>
+        <div style="padding: 20px">
+          <p>
+            This system uses machine learning to predict student academic
+            performance and identify at-risk students.
+          </p>
+
+          <h3 style="margin: 20px 0 10px">Features:</h3>
+          <ul style="margin-left: 20px">
+            <li><strong>Admin Module:</strong> Manage students and courses</li>
+            <li>
+              <strong>Lecturer Module:</strong> Input assessment scores and
+              attendance records
+            </li>
+            <li>
+              <strong>AI Prediction:</strong> Logistic Regression model to
+              predict student risk levels
+            </li>
+            <li>
+              <strong>Dashboard:</strong> View risk statistics and identify
+              high-risk students
+            </li>
+          </ul>
+
+          <div
+            style="
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+              gap: 20px;
+              margin-top: 30px;
+            "
+          >
+            <div class="card" style="text-align: center">
+              <h3>Admin</h3>
+              <p>Manage students and courses data</p>
+              <a href="admin.html" class="btn btn-primary">Go to Admin</a>
+            </div>
+
+            <div class="card" style="text-align: center">
+              <h3>Lecturer</h3>
+              <p>Input scores and attendance</p>
+              <a href="lecturer.html" class="btn btn-primary">Go to Lecturer</a>
+            </div>
+
+            <div class="card" style="text-align: center">
+              <h3>Dashboard</h3>
+              <p>View predictions and statistics</p>
+              <a href="dashboard.html" class="btn btn-primary"
+                >Go to Dashboard</a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/main.js"></script>
+  </body>
+</html>
