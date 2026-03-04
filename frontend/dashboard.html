@@ -128,40 +128,6 @@
 
         <div id="pagination"></div>
       </div>
-
-      <!-- Debug Panel -->
-      <div class="card debug-panel">
-        <div class="card-header">
-          <h3 class="card-title">Debug Panel</h3>
-        </div>
-        <div class="card-body">
-          <div
-            style="
-              display: flex;
-              gap: 10px;
-              flex-wrap: wrap;
-              margin-bottom: 15px;
-            "
-          >
-            <button class="btn" onclick="debugPredictions()">
-              Predictions
-            </button>
-            <button class="btn" onclick="debugStudents()">Students</button>
-            <button class="btn" onclick="debugAssessments()">
-              Assessments
-            </button>
-            <button class="btn btn-warning" onclick="forceReload()">
-              Force Reload
-            </button>
-            <button class="btn btn-danger" onclick="testPredictionGeneration()">
-              Test Generate
-            </button>
-          </div>
-          <div id="debugOutput" class="debug-output">
-            Click a button to see data...
-          </div>
-        </div>
-      </div>
     </div>
     <script src="js/config.js"></script>
     <script src="js/main.js"></script>
