@@ -5,28 +5,167 @@ let courses = [];
 // Optional: Log which URL is being used (helpful for debugging)
 console.log('Admin page - Using API URL:', API_BASE);
 
-// Add spinner animation
+// Add spinner animation and toast styles
 const style = document.createElement("style");
 style.textContent = `
     @keyframes spin {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
     }
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
     .spinner {
         display: inline-block;
         width: 30px;
         height: 30px;
         border: 3px solid #f3f3f3;
-        border-top: 3px solid #3498db;
+        border-top: 3px solid #135bec;
         border-radius: 50%;
         animation: spin 1s linear infinite;
     }
 `;
 document.head.appendChild(style);
 
+// Toast notification system
+function showToast(message, type = 'success', duration = 4000) {
+    // Create toast container if it doesn't exist
+    let container = document.getElementById('toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        container.className = 'fixed bottom-4 right-4 z-[100] flex flex-col gap-2';
+        document.body.appendChild(container);
+    }
+    
+    const toast = document.createElement('div');
+    
+    // Define styles based on type
+    const bgColor = {
+        success: 'bg-green-50 border-green-200 text-green-800',
+        error: 'bg-red-50 border-red-200 text-red-800',
+        warning: 'bg-amber-50 border-amber-200 text-amber-800',
+        info: 'bg-blue-50 border-blue-200 text-blue-800'
+    }[type] || 'bg-slate-50 border-slate-200 text-slate-800';
+    
+    const iconColor = {
+        success: 'text-green-500',
+        error: 'text-red-500',
+        warning: 'text-amber-500',
+        info: 'text-blue-500'
+    }[type] || 'text-slate-500';
+    
+    const icon = {
+        success: 'check_circle',
+        error: 'error',
+        warning: 'warning',
+        info: 'info'
+    }[type] || 'notifications';
+    
+    toast.className = `flex items-center gap-3 px-4 py-3 rounded-xl border ${bgColor} shadow-lg backdrop-blur-sm min-w-[300px] max-w-md`;
+    toast.style.animation = 'slideIn 0.3s ease';
+    
+    toast.innerHTML = `
+        <span class="material-symbols-outlined ${iconColor}">${icon}</span>
+        <span class="flex-1 text-sm font-medium">${message}</span>
+        <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-slate-600">
+            <span class="material-symbols-outlined text-lg">close</span>
+        </button>
+    `;
+    
+    container.appendChild(toast);
+    
+    // Auto remove after duration
+    setTimeout(() => {
+        if (toast.parentElement) {
+            toast.style.animation = 'slideOut 0.3s ease forwards';
+            setTimeout(() => toast.remove(), 300);
+        }
+    }, duration);
+}
+
+// Replace showAlert with toast
+function showAlert(message, type = 'success') {
+    // Map old types to new toast types
+    const toastType = {
+        'success': 'success',
+        'danger': 'error',
+        'warning': 'warning',
+        'info': 'info'
+    }[type] || 'info';
+    
+    showToast(message, toastType);
+}
+
+// Custom confirm dialog with styled modal
+async function showConfirm(message) {
+    return new Promise((resolve) => {
+        // Create confirm modal container
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'fixed inset-0 bg-black/40 backdrop-blur-sm z-[200] flex items-center justify-center';
+        modalOverlay.style.animation = 'fadeIn 0.2s ease';
+        
+        const modal = document.createElement('div');
+        modal.className = 'bg-white rounded-2xl max-w-[400px] w-full mx-4 p-6 shadow-2xl border border-primary/15';
+        modal.innerHTML = `
+            <div class="flex items-start gap-4 mb-6">
+                <div class="w-10 h-10 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center">
+                    <span class="material-symbols-outlined text-2xl">help</span>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-lg font-bold text-slate-900 mb-2">Confirm Action</h3>
+                    <p class="text-slate-600 text-sm">${message}</p>
+                </div>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-3">
+                <button class="flex-1 bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-4 rounded-xl transition-all text-sm" id="confirm-yes">Yes, proceed</button>
+                <button class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold py-3 px-4 rounded-xl transition-all text-sm" id="confirm-no">Cancel</button>
+            </div>
+        `;
+        
+        modalOverlay.appendChild(modal);
+        document.body.appendChild(modalOverlay);
+        
+        // Handle clicks
+        document.getElementById('confirm-yes').addEventListener('click', () => {
+            document.body.removeChild(modalOverlay);
+            resolve(true);
+        });
+        
+        document.getElementById('confirm-no').addEventListener('click', () => {
+            document.body.removeChild(modalOverlay);
+            resolve(false);
+        });
+        
+        // Close on overlay click
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                document.body.removeChild(modalOverlay);
+                resolve(false);
+            }
+        });
+    });
+}
+
 // Load data on page load
 document.addEventListener("DOMContentLoaded", function () {
     console.log("👨‍💼 Admin page loaded");
+    
+    // Create toast container
+    const toastContainer = document.createElement('div');
+    toastContainer.id = 'toast-container';
+    toastContainer.className = 'fixed bottom-4 right-4 z-[100] flex flex-col gap-2';
+    document.body.appendChild(toastContainer);
+    
     loadAllData();
 });
 
@@ -63,7 +202,7 @@ async function loadAllData() {
         displayCourses();
     } catch (error) {
         console.error("❌ Error loading data:", error);
-        showAlert("Failed to load data. Please refresh the page.", "danger");
+        showToast("Failed to load data. Please refresh the page.", "error");
     }
 }
 
@@ -269,7 +408,7 @@ async function loadStudents() {
         displayStudents();
     } catch (error) {
         console.error("Failed to load students:", error);
-        showAlert("Failed to load students", "danger");
+        showToast("Failed to load students", "error");
     }
 }
 
@@ -297,23 +436,24 @@ function editStudent(id) {
             })
             .catch((error) => {
                 console.error("Failed to load student for edit:", error);
-                showAlert("Failed to load student details", "danger");
+                showToast("Failed to load student details", "error");
             });
     }
 }
 
 async function deleteStudent(id) {
-    if (confirm("Are you sure you want to delete this student? This action cannot be undone.")) {
+    const confirmed = await showConfirm("Are you sure you want to delete this student? This action cannot be undone.");
+    if (confirmed) {
         try {
             await apiCall(`/admin/students/${id}`, "DELETE");
-            showAlert("Student deleted successfully");
+            showToast("Student deleted successfully", "success");
 
             // Remove from local array and update display
             students = students.filter((s) => s.id !== id);
             displayStudents();
         } catch (error) {
             console.error("Failed to delete student:", error);
-            showAlert("Failed to delete student", "danger");
+            showToast("Failed to delete student", "error");
         }
     }
 }
@@ -332,7 +472,7 @@ async function saveStudent(event) {
 
     // Validate required fields
     if (!studentData.name || !studentData.matric_no || !studentData.department || !studentData.level) {
-        showAlert("Please fill in all fields", "danger");
+        showToast("Please fill in all fields", "error");
         return;
     }
 
@@ -342,7 +482,7 @@ async function saveStudent(event) {
         let response;
         if (studentId) {
             response = await apiCall(`/admin/students/${studentId}`, "PUT", studentData);
-            showAlert("Student updated successfully");
+            showToast("Student updated successfully", "success");
 
             // Update local array
             const index = students.findIndex((s) => s.id === studentId);
@@ -351,7 +491,7 @@ async function saveStudent(event) {
             }
         } else {
             response = await apiCall("/admin/students/", "POST", studentData);
-            showAlert("Student added successfully");
+            showToast("Student added successfully", "success");
 
             // Add to local array
             students.push(response);
@@ -366,7 +506,7 @@ async function saveStudent(event) {
         displayStudents();
     } catch (error) {
         console.error("Failed to save student:", error);
-        showAlert("Failed to save student: " + (error.message || "Unknown error"), "danger");
+        showToast("Failed to save student: " + (error.message || "Unknown error"), "error");
     }
 }
 
@@ -377,7 +517,7 @@ async function loadCourses() {
         displayCourses();
     } catch (error) {
         console.error("Failed to load courses:", error);
-        showAlert("Failed to load courses", "danger");
+        showToast("Failed to load courses", "error");
     }
 }
 
@@ -402,23 +542,24 @@ function editCourse(id) {
             })
             .catch((error) => {
                 console.error("Failed to load course for edit:", error);
-                showAlert("Failed to load course details", "danger");
+                showToast("Failed to load course details", "error");
             });
     }
 }
 
 async function deleteCourse(id) {
-    if (confirm("Are you sure you want to delete this course? This action cannot be undone.")) {
+    const confirmed = await showConfirm("Are you sure you want to delete this course? This action cannot be undone.");
+    if (confirmed) {
         try {
             await apiCall(`/admin/courses/${id}`, "DELETE");
-            showAlert("Course deleted successfully");
+            showToast("Course deleted successfully", "success");
 
             // Remove from local array and update display
             courses = courses.filter((c) => c.id !== id);
             displayCourses();
         } catch (error) {
             console.error("Failed to delete course:", error);
-            showAlert("Failed to delete course", "danger");
+            showToast("Failed to delete course", "error");
         }
     }
 }
@@ -436,7 +577,7 @@ async function saveCourse(event) {
 
     // Validate required fields
     if (!courseData.course_code || !courseData.course_title || !courseData.credit_unit) {
-        showAlert("Please fill in all fields", "danger");
+        showToast("Please fill in all fields", "error");
         return;
     }
 
@@ -446,7 +587,7 @@ async function saveCourse(event) {
         let response;
         if (courseId) {
             response = await apiCall(`/admin/courses/${courseId}`, "PUT", courseData);
-            showAlert("Course updated successfully");
+            showToast("Course updated successfully", "success");
 
             // Update local array
             const index = courses.findIndex((c) => c.id === courseId);
@@ -455,7 +596,7 @@ async function saveCourse(event) {
             }
         } else {
             response = await apiCall("/admin/courses/", "POST", courseData);
-            showAlert("Course added successfully");
+            showToast("Course added successfully", "success");
 
             // Add to local array
             courses.push(response);
@@ -470,7 +611,7 @@ async function saveCourse(event) {
         displayCourses();
     } catch (error) {
         console.error("Failed to save course:", error);
-        showAlert("Failed to save course: " + (error.message || "Unknown error"), "danger");
+        showToast("Failed to save course: " + (error.message || "Unknown error"), "error");
     }
 }
 
@@ -504,12 +645,16 @@ function searchStudents() {
         existingNoResults.remove();
     }
 
-    if (visibleCount === 0 && students.length > 0) {
+    if (visibleCount === 0 && students.length > 0 && searchText !== "") {
         const noResultsRow = document.createElement("tr");
         noResultsRow.id = "noSearchResults";
         noResultsRow.innerHTML = `
-            <td colspan="5" style="text-align: center; padding: 20px; color: #666;">
-                <p>🔍 No students matching "${searchText}"</p>
+            <td colspan="5" class="text-center py-16">
+                <div class="flex flex-col items-center justify-center gap-3">
+                    <span class="material-symbols-outlined text-5xl text-slate-300">search_off</span>
+                    <p class="text-slate-500 font-medium">No students matching "${escapeHtml(searchText)}"</p>
+                    <p class="text-sm text-slate-400">Try adjusting your search terms</p>
+                </div>
             </td>
         `;
         tbody.appendChild(noResultsRow);
@@ -607,7 +752,7 @@ function debugCourses() {
 
 function forceReload() {
     console.log("🔄 Force reloading all data...");
-    showAlert("Reloading data...", "info");
+    showToast("Reloading data...", "info");
     loadAllData();
 }
 

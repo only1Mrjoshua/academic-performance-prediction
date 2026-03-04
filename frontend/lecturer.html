@@ -3,227 +3,572 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Lecturer - Academic Performance System</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <title>Lecturer – Academic Analytics</title>
+    <!-- Tailwind + same fonts & config as admin -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="css/style.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#135bec",
+              "background-light": "#f6f6f8",
+              "background-dark": "#101622",
+            },
+            fontFamily: {
+              display: ["Inter"],
+            },
+            borderRadius: {
+              DEFAULT: "0.5rem",
+              lg: "1rem",
+              xl: "1.5rem",
+              full: "9999px",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      .glass-nav {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      }
+      .spinner {
+        border: 3px solid rgba(19, 91, 236, 0.1);
+        border-top-color: #135bec;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 0.8s linear infinite;
+        margin: 0 auto;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      @media (max-width: 767px) {
+        .nav-stack-mobile {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.25rem;
+        }
+        .nav-badge-mobile {
+          margin-left: 0;
+          align-self: flex-start;
+        }
+        .modal-actions-mobile {
+          flex-direction: column;
+        }
+        .modal-actions-mobile button {
+          width: 100%;
+        }
+      }
+      body {
+        overflow-x: hidden;
+        width: 100%;
+        position: relative;
+      }
+    </style>
+    <!-- we deliberately omit old style.css – only tailwind + minimal spinner above -->
   </head>
-  <body>
-    <nav class="navbar">
-      <div class="container">
-        <a href="index.html" class="navbar-brand"
-          >Academic Performance System</a
+  <body
+    class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen antialiased overflow-x-hidden"
+  >
+    <!-- glass navigation exactly like admin (same logo, same structure, lecturer link active) -->
+    <nav
+      class="fixed top-0 left-0 right-0 z-50 glass-nav border-b border-primary/10"
+    >
+      <div
+        class="max-w-[1200px] mx-auto px-6 h-20 flex items-center justify-between"
+      >
+        <!-- Logo (identical to admin) -->
+        <a href="index.html" class="flex items-center gap-3">
+          <div class="bg-primary text-white p-2 rounded-lg">
+            <span class="material-symbols-outlined">school</span>
+          </div>
+          <span class="font-bold text-lg">Academic Analytics</span>
+        </a>
+
+        <!-- Navigation Links (admin used “Lecturer” and “Dashboard”, we keep same order) -->
+        <div
+          class="hidden md:flex items-center gap-8 font-semibold text-slate-700"
         >
-        <ul class="navbar-nav">
-          <li><a href="index.html">Home</a></li>
-          <li><a href="admin.html">Admin</a></li>
-          <li><a href="lecturer.html" class="active">Lecturer</a></li>
-          <li><a href="dashboard.html">Dashboard</a></li>
-        </ul>
+          <a href="admin.html" class="hover:text-primary">Admin</a>
+          <a href="dashboard.html" class="hover:text-primary">Dashboard</a>
+        </div>
+
+        <!-- Right side – badge/button matching admin but showing "Lecturer" -->
+        <div class="flex items-center gap-3">
+          <button class="bg-primary text-white px-4 py-2 rounded-lg">
+            Lecturer
+          </button>
+        </div>
       </div>
     </nav>
 
-    <div class="container">
-      <!-- Assessments Section -->
-      <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">Manage Assessments</h2>
+    <!-- main container with padding identical to admin -->
+    <main class="pt-28 md:pt-32 pb-20 px-6">
+      <div class="max-w-[1200px] mx-auto">
+        <!-- header section like admin: big heading + supporting paragraph (keep meaning) -->
+        <div class="mb-10">
+          <h1
+            class="text-3xl md:text-5xl font-black text-slate-900 leading-[1.2] tracking-tight"
+          >
+            Manage<span class="text-primary"> assessments & attendance</span>
+          </h1>
+          <p class="text-base text-slate-600 max-w-2xl mt-3">
+            Add, edit or remove assessment scores and attendance records. AI
+            predictions available below.
+          </p>
+        </div>
+
+        <!-- ========== ASSESSMENTS CARD ========== -->
+        <div
+          class="bg-white rounded-xl shadow-sm border border-slate-200 hover:shadow-xl hover:border-primary/20 transition-all duration-300 mb-8 overflow-hidden"
+        >
+          <!-- card header (stack on mobile) -->
+          <div
+            class="p-8 md:p-8 pb-6 md:pb-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+          >
+            <div class="flex items-center gap-3">
+              <div
+                class="w-10 h-10 bg-primary/10 text-primary rounded-lg flex items-center justify-center"
+              >
+                <span class="material-symbols-outlined text-2xl"
+                  >assignment</span
+                >
+              </div>
+              <h2 class="text-2xl font-bold text-slate-900">
+                Manage Assessments
+              </h2>
+            </div>
+            <!-- original onclick preserved -->
+            <button
+              class="bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-6 rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm text-sm w-full md:w-auto"
+              onclick="openModal('assessmentModal')"
+            >
+              <span class="material-symbols-outlined text-lg">add</span> Add
+              Assessment
+            </button>
+          </div>
+
+          <!-- card body (table with scroll on mobile) -->
+          <div class="p-5 md:p-8 pt-5 md:pt-6">
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm" id="assessmentsTable">
+                <thead
+                  class="text-slate-500 text-xs font-semibold uppercase tracking-wider border-b border-slate-200"
+                >
+                  <tr>
+                    <th class="text-left pb-3 pl-2 whitespace-nowrap">
+                      Student
+                    </th>
+                    <th class="text-left pb-3 whitespace-nowrap">Course</th>
+                    <th class="text-left pb-3 whitespace-nowrap">Test Score</th>
+                    <th class="text-left pb-3 whitespace-nowrap">Assignment</th>
+                    <th class="text-left pb-3 whitespace-nowrap">Exam Score</th>
+                    <th class="text-left pb-3 whitespace-nowrap">Total</th>
+                    <th class="text-left pb-3 pr-2 whitespace-nowrap">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody id="assessmentsBody" class="text-slate-700">
+                  <tr id="assessmentsLoadingRow">
+                    <td colspan="7" class="text-center py-12">
+                      <div class="spinner"></div>
+                      <p class="mt-4 text-sm text-slate-500">
+                        Loading assessments...
+                      </p>
+                    </td>
+                  </tr>
+                  <!-- dynamic rows inserted by lecturer.js -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========== ATTENDANCE CARD ========== -->
+        <div
+          class="bg-white rounded-xl shadow-sm border border-slate-200 hover:shadow-xl hover:border-primary/20 transition-all duration-300 mb-8 overflow-hidden"
+        >
+          <!-- card header -->
+          <div
+            class="p-8 md:p-8 pb-6 md:pb-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+          >
+            <div class="flex items-center gap-3">
+              <div
+                class="w-10 h-10 bg-primary/10 text-primary rounded-lg flex items-center justify-center"
+              >
+                <span class="material-symbols-outlined text-2xl"
+                  >event_available</span
+                >
+              </div>
+              <h2 class="text-2xl font-bold text-slate-900">
+                Manage Attendance
+              </h2>
+            </div>
+            <button
+              class="bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-6 rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm text-sm w-full md:w-auto"
+              onclick="openModal('attendanceModal')"
+            >
+              <span class="material-symbols-outlined text-lg">add</span> Add
+              Attendance
+            </button>
+          </div>
+
+          <div class="p-5 md:p-8 pt-5 md:pt-6">
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm" id="attendanceTable">
+                <thead
+                  class="text-slate-500 text-xs font-semibold uppercase tracking-wider border-b border-slate-200"
+                >
+                  <tr>
+                    <th class="text-left pb-3 pl-2 whitespace-nowrap">
+                      Student
+                    </th>
+                    <th class="text-left pb-3 whitespace-nowrap">Course</th>
+                    <th class="text-left pb-3 whitespace-nowrap">
+                      Attendance %
+                    </th>
+                    <th class="text-left pb-3 pr-2 whitespace-nowrap">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody id="attendanceBody" class="text-slate-700">
+                  <tr id="attendanceLoadingRow">
+                    <td colspan="4" class="text-center py-12">
+                      <div class="spinner"></div>
+                      <p class="mt-4 text-sm text-slate-500">
+                        Loading attendance records...
+                      </p>
+                    </td>
+                  </tr>
+                  <!-- dynamic rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========== AI PREDICTIONS CARD ========== -->
+        <div
+          class="bg-white rounded-xl shadow-sm border border-slate-200 hover:shadow-xl hover:border-primary/20 transition-all duration-300 mb-8 overflow-hidden"
+        >
+          <div
+            class="p-8 md:p-8 pb-6 md:pb-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+          >
+            <div class="flex items-center gap-3">
+              <div
+                class="w-10 h-10 bg-primary/10 text-primary rounded-lg flex items-center justify-center"
+              >
+                <span class="material-symbols-outlined text-2xl"
+                  >psychology</span
+                >
+              </div>
+              <h2 class="text-2xl font-bold text-slate-900">AI Predictions</h2>
+            </div>
+            <!-- empty right side (no extra button) but we keep the buttons inside body -->
+          </div>
+
+          <div class="p-5 md:p-8 pt-5 md:pt-6">
+            <div class="flex flex-col sm:flex-row gap-3">
+              <button
+                onclick="trainModel()"
+                class="bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-6 rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm text-sm w-full sm:w-auto"
+              >
+                <span class="material-symbols-outlined text-lg"
+                  >model_training</span
+                >
+                Train Model
+              </button>
+              <button
+                onclick="generateAllPredictions()"
+                class="bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold py-3 px-6 rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm text-sm w-full sm:w-auto"
+              >
+                <span class="material-symbols-outlined text-lg"
+                  >auto_graph</span
+                >
+                Generate All Predictions
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- footer exactly like admin (compact) -->
+    <footer class="border-t border-slate-200 bg-white py-4">
+      <div class="max-w-[1200px] mx-auto px-6">
+        <div
+          class="flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-2 text-sm text-slate-500"
+        >
+          <div class="flex items-center gap-2">
+            <div
+              class="bg-primary text-white p-1 rounded flex items-center justify-center"
+            >
+              <span class="material-symbols-outlined text-base">school</span>
+            </div>
+            <span class="font-semibold text-slate-900">Academic Analytics</span>
+          </div>
+          <div class="text-slate-400">
+            © 2026 University Academic Systems. Built for Institutional
+            Excellence.
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- ASSESSMENT MODAL (exact style from admin, preserve IDs and form) -->
+    <div
+      id="assessmentModal"
+      class="fixed inset-0 z-50 hidden bg-black/40 backdrop-blur-sm"
+      style="display: none"
+    >
+      <div class="flex items-center justify-center min-h-screen px-4">
+        <div
+          class="relative bg-white p-5 md:p-8 rounded-2xl max-w-[520px] w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-primary/15"
+        >
+          <!-- close button -->
           <button
-            class="btn btn-primary"
-            onclick="openModal('assessmentModal')"
+            onclick="closeModal('assessmentModal')"
+            class="absolute right-6 top-6 text-3xl font-semibold text-slate-400 hover:text-primary transition-colors cursor-pointer"
+          >
+            &times;
+          </button>
+
+          <h2
+            id="assessmentModalTitle"
+            class="text-2xl font-bold text-slate-900 mb-6"
           >
             Add Assessment
-          </button>
-        </div>
+          </h2>
 
-        <div class="table-responsive">
-          <table class="table" id="assessmentsTable">
-            <thead>
-              <tr>
-                <th>Student</th>
-                <th>Course</th>
-                <th>Test Score</th>
-                <th>Assignment</th>
-                <th>Exam Score</th>
-                <th>Total</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="assessmentsBody">
-              <tr id="assessmentsLoadingRow">
-                <td colspan="7" style="text-align: center; padding: 20px">
-                  Loading assessments...
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <form id="assessmentForm" onsubmit="saveAssessment(event)">
+            <input type="hidden" id="assessmentId" />
+
+            <div class="mb-5">
+              <label
+                for="assessmentStudent"
+                class="block text-sm font-semibold text-slate-700 mb-2"
+              >
+                Student:
+              </label>
+              <select
+                id="assessmentStudent"
+                required
+                class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
+              >
+                <option value="">Select Student</option>
+              </select>
+            </div>
+
+            <div class="mb-5">
+              <label
+                for="assessmentCourse"
+                class="block text-sm font-semibold text-slate-700 mb-2"
+              >
+                Course:
+              </label>
+              <select
+                id="assessmentCourse"
+                required
+                class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
+              >
+                <option value="">Select Course</option>
+              </select>
+            </div>
+
+            <div class="mb-5">
+              <label
+                for="testScore"
+                class="block text-sm font-semibold text-slate-700 mb-2"
+              >
+                Test Score (0-30):
+              </label>
+              <input
+                type="number"
+                id="testScore"
+                min="0"
+                max="30"
+                step="0.5"
+                required
+                class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
+              />
+            </div>
+
+            <div class="mb-5">
+              <label
+                for="assignmentScore"
+                class="block text-sm font-semibold text-slate-700 mb-2"
+              >
+                Assignment Score (0-20):
+              </label>
+              <input
+                type="number"
+                id="assignmentScore"
+                min="0"
+                max="20"
+                step="0.5"
+                required
+                class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
+              />
+            </div>
+
+            <div class="mb-6">
+              <label
+                for="examScore"
+                class="block text-sm font-semibold text-slate-700 mb-2"
+              >
+                Exam Score (0-50):
+              </label>
+              <input
+                type="number"
+                id="examScore"
+                min="0"
+                max="50"
+                step="0.5"
+                required
+                class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
+              />
+            </div>
+
+            <!-- action buttons: mobile stack, row on sm+ -->
+            <div class="flex flex-col sm:flex-row gap-3">
+              <button
+                type="submit"
+                class="bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-6 rounded-xl transition flex-1"
+              >
+                Save
+              </button>
+              <button
+                type="button"
+                class="bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold py-3 px-6 rounded-xl transition flex-1"
+                onclick="closeModal('assessmentModal')"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
         </div>
       </div>
+    </div>
 
-      <!-- Attendance Section -->
-      <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">Manage Attendance</h2>
+    <!-- ATTENDANCE MODAL -->
+    <div
+      id="attendanceModal"
+      class="fixed inset-0 z-50 hidden bg-black/40 backdrop-blur-sm"
+      style="display: none"
+    >
+      <div class="flex items-center justify-center min-h-screen px-4">
+        <div
+          class="relative bg-white p-5 md:p-8 rounded-2xl max-w-[520px] w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-primary/15"
+        >
           <button
-            class="btn btn-primary"
-            onclick="openModal('attendanceModal')"
+            onclick="closeModal('attendanceModal')"
+            class="absolute right-6 top-6 text-3xl font-semibold text-slate-400 hover:text-primary transition-colors cursor-pointer"
+          >
+            &times;
+          </button>
+
+          <h2
+            id="attendanceModalTitle"
+            class="text-2xl font-bold text-slate-900 mb-6"
           >
             Add Attendance
-          </button>
-        </div>
+          </h2>
 
-        <div class="table-responsive">
-          <table class="table" id="attendanceTable">
-            <thead>
-              <tr>
-                <th>Student</th>
-                <th>Course</th>
-                <th>Attendance %</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="attendanceBody">
-              <tr id="attendanceLoadingRow">
-                <td colspan="4" style="text-align: center; padding: 20px">
-                  Loading attendance records...
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+          <form id="attendanceForm" onsubmit="saveAttendance(event)">
+            <input type="hidden" id="attendanceId" />
 
-      <!-- Prediction Controls -->
-      <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">AI Predictions</h2>
-        </div>
-        <div style="display: flex; gap: 10px; padding: 20px">
-          <button class="btn btn-primary" onclick="trainModel()">
-            Train Model
-          </button>
-          <button class="btn btn-secondary" onclick="generateAllPredictions()">
-            Generate All Predictions
-          </button>
-        </div>
-      </div>
-    </div>
+            <div class="mb-5">
+              <label
+                for="attendanceStudent"
+                class="block text-sm font-semibold text-slate-700 mb-2"
+              >
+                Student:
+              </label>
+              <select
+                id="attendanceStudent"
+                required
+                class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
+              >
+                <option value="">Select Student</option>
+              </select>
+            </div>
 
-    <!-- Assessment Modal -->
-    <div id="assessmentModal" class="modal">
-      <div class="modal-content">
-        <span class="close" onclick="closeModal('assessmentModal')"
-          >&times;</span
-        >
-        <h2 id="assessmentModalTitle">Add Assessment</h2>
-        <form id="assessmentForm" onsubmit="saveAssessment(event)">
-          <input type="hidden" id="assessmentId" />
-          <div class="form-group">
-            <label for="assessmentStudent">Student:</label>
-            <select id="assessmentStudent" required>
-              <option value="">Select Student</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="assessmentCourse">Course:</label>
-            <select id="assessmentCourse" required>
-              <option value="">Select Course</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="testScore">Test Score (0-30):</label>
-            <input
-              type="number"
-              id="testScore"
-              min="0"
-              max="30"
-              step="0.5"
-              required
-            />
-          </div>
-          <div class="form-group">
-            <label for="assignmentScore">Assignment Score (0-20):</label>
-            <input
-              type="number"
-              id="assignmentScore"
-              min="0"
-              max="20"
-              step="0.5"
-              required
-            />
-          </div>
-          <div class="form-group">
-            <label for="examScore">Exam Score (0-50):</label>
-            <input
-              type="number"
-              id="examScore"
-              min="0"
-              max="50"
-              step="0.5"
-              required
-            />
-          </div>
-          <button type="submit" class="btn btn-primary">Save</button>
-          <button
-            type="button"
-            class="btn btn-secondary"
-            onclick="closeModal('assessmentModal')"
-          >
-            Cancel
-          </button>
-        </form>
+            <div class="mb-5">
+              <label
+                for="attendanceCourse"
+                class="block text-sm font-semibold text-slate-700 mb-2"
+              >
+                Course:
+              </label>
+              <select
+                id="attendanceCourse"
+                required
+                class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
+              >
+                <option value="">Select Course</option>
+              </select>
+            </div>
+
+            <div class="mb-6">
+              <label
+                for="attendancePercentage"
+                class="block text-sm font-semibold text-slate-700 mb-2"
+              >
+                Attendance Percentage (0-100):
+              </label>
+              <input
+                type="number"
+                id="attendancePercentage"
+                min="0"
+                max="100"
+                step="1"
+                required
+                class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
+              />
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3">
+              <button
+                type="submit"
+                class="bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-6 rounded-xl transition flex-1"
+              >
+                Save
+              </button>
+              <button
+                type="button"
+                class="bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold py-3 px-6 rounded-xl transition flex-1"
+                onclick="closeModal('attendanceModal')"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
 
-    <!-- Attendance Modal -->
-    <div id="attendanceModal" class="modal">
-      <div class="modal-content">
-        <span class="close" onclick="closeModal('attendanceModal')"
-          >&times;</span
-        >
-        <h2 id="attendanceModalTitle">Add Attendance</h2>
-        <form id="attendanceForm" onsubmit="saveAttendance(event)">
-          <input type="hidden" id="attendanceId" />
-          <div class="form-group">
-            <label for="attendanceStudent">Student:</label>
-            <select id="attendanceStudent" required>
-              <option value="">Select Student</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="attendanceCourse">Course:</label>
-            <select id="attendanceCourse" required>
-              <option value="">Select Course</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="attendancePercentage"
-              >Attendance Percentage (0-100):</label
-            >
-            <input
-              type="number"
-              id="attendancePercentage"
-              min="0"
-              max="100"
-              step="1"
-              required
-            />
-          </div>
-          <button type="submit" class="btn btn-primary">Save</button>
-          <button
-            type="button"
-            class="btn btn-secondary"
-            onclick="closeModal('attendanceModal')"
-          >
-            Cancel
-          </button>
-        </form>
-      </div>
-    </div>
+    <!-- scripts exactly as before (order preserved) -->
     <script src="js/config.js"></script>
     <script src="js/main.js"></script>
     <script src="js/lecturer.js"></script>
