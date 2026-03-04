@@ -2,7 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes"
+    />
     <title>Admin – Academic Analytics</title>
     <!-- Tailwind + same fonts & config as index -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -62,45 +65,36 @@
           transform: rotate(360deg);
         }
       }
-      /* modal overlay + content smooth like index cards */
-      .modal {
-        display: none;
-        position: fixed;
-        z-index: 1000;
-        left: 0;
-        top: 0;
+      /* tiny mobile-only adjustments that can't be done with utilities alone (safe, won't affect md+) */
+      @media (max-width: 767px) {
+        /* ensure nav badge doesn't overflow when stacked */
+        .nav-stack-mobile {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.25rem;
+        }
+        .nav-badge-mobile {
+          margin-left: 0;
+          align-self: flex-start;
+        }
+        /* extra safety for modal buttons stacking on very small screens (<360px) */
+        .modal-actions-mobile {
+          flex-direction: column;
+        }
+        .modal-actions-mobile button {
+          width: 100%;
+        }
+      }
+      /* guarantee no horizontal scroll on any mobile width */
+      body {
+        overflow-x: hidden;
         width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.4);
-        backdrop-filter: blur(4px);
-        align-items: center;
-        justify-content: center;
-      }
-      .modal-content {
-        background: white;
-        padding: 2rem;
-        border-radius: 1.5rem;
-        max-width: 480px;
-        width: 90%;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-        border: 1px solid rgba(19, 91, 236, 0.15);
-      }
-      .close {
-        float: right;
-        font-size: 28px;
-        font-weight: 600;
-        color: #94a3b8;
-        cursor: pointer;
-        transition: color 0.2s;
-        line-height: 1;
-      }
-      .close:hover {
-        color: #135bec;
+        position: relative;
       }
     </style>
   </head>
   <body
-    class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen antialiased"
+    class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen antialiased overflow-x-hidden"
   >
     <!-- glass navigation identical to index (same logo, no extra links) 
          but we add a subtle home link using icon to keep it clean -->
@@ -110,50 +104,40 @@
       <div
         class="max-w-[1200px] mx-auto px-6 h-20 flex items-center justify-between"
       >
-        <div class="flex items-center gap-10">
-          <a href="index.html" class="flex items-center gap-3 group">
-            <div
-              class="bg-primary text-white p-2 rounded-lg flex items-center justify-center transition-all group-hover:scale-105"
-            >
-              <span class="material-symbols-outlined text-2xl">school</span>
-            </div>
-            <h2 class="text-xl font-bold tracking-tight text-slate-900">
-              Academic Analytics
-            </h2>
-          </a>
-        </div>
-        <!-- optional quick badge to indicate admin section, matches index hero pill style -->
+        <!-- Logo -->
+        <a href="index.html" class="flex items-center gap-3">
+          <div class="bg-primary text-white p-2 rounded-lg">
+            <span class="material-symbols-outlined">school</span>
+          </div>
+          <span class="font-bold text-lg">Academic Analytics</span>
+        </a>
+
+        <!-- Navigation Links -->
         <div
-          class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider"
+          class="hidden md:flex items-center gap-8 font-semibold text-slate-700"
         >
-          <span class="relative flex h-2 w-2">
-            <span
-              class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"
-            ></span>
-            <span
-              class="relative inline-flex rounded-full h-2 w-2 bg-primary"
-            ></span>
-          </span>
-          admin portal
+          <a href="lecturer.html" class="hover:text-primary">Lecturer</a>
+          <a href="dashboard.html" class="hover:text-primary">Dashboard</a>
+        </div>
+
+        <!-- Right Side -->
+        <div class="flex items-center gap-3">
+          <button class="bg-primary text-white px-4 py-2 rounded-lg">
+            Admin
+          </button>
         </div>
       </div>
     </nav>
 
-    <!-- main container with top padding (same as index) -->
-    <main class="pt-32 pb-20 px-6">
+    <!-- main container with top padding (same as index) 
+         MOBILE: reduce pt so content starts nicely below fixed nav (which is taller now because stacked) -->
+    <main class="pt-28 md:pt-32 pb-20 px-6">
       <div class="max-w-[1200px] mx-auto">
-        <!-- subtle hero caption (smaller than index but same family) -->
+        <!-- subtle hero caption (smaller than index but same family) 
+             MOBILE: heading slightly smaller, ensure wrap -->
         <div class="mb-10">
-          <div
-            class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider mb-4"
-          >
-            <span class="material-symbols-outlined text-base"
-              >admin_panel_settings</span
-            >
-            system configuration
-          </div>
           <h1
-            class="text-4xl md:text-5xl font-black text-slate-900 leading-[1.2] tracking-tight"
+            class="text-3xl md:text-5xl font-black text-slate-900 leading-[1.2] tracking-tight"
           >
             Manage<span class="text-primary"> students & courses</span>
           </h1>
@@ -163,12 +147,14 @@
           </p>
         </div>
 
-        <!-- Students Card (converted to index card style) -->
+        <!-- Students Card (converted to index card style) 
+             MOBILE: reduce card padding from p-8 to p-4/p-5, stack header -->
         <div
           class="bg-white rounded-xl shadow-sm border border-slate-200 hover:shadow-xl hover:border-primary/20 transition-all duration-300 mb-8 overflow-hidden"
         >
+          <!-- header: on mobile stack title left and button full-width under it -->
           <div
-            class="p-8 pb-6 border-b border-slate-100 flex flex-wrap items-center justify-between gap-4"
+            class="p-8 md:p-8 pb-6 md:pb-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
           >
             <div class="flex items-center gap-3">
               <div
@@ -179,15 +165,16 @@
               <h2 class="text-2xl font-bold text-slate-900">Students</h2>
             </div>
             <button
-              class="bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-6 rounded-xl flex items-center gap-2 transition-all shadow-sm text-sm"
+              class="bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-6 rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm text-sm w-full md:w-auto"
               onclick="openModal('studentModal')"
             >
               <span class="material-symbols-outlined text-lg">add</span> Add
               student
             </button>
           </div>
-          <div class="p-8 pt-6">
-            <!-- search box with icon (tailwind styled) -->
+          <!-- body: reduce padding on mobile from p-8 to p-5 -->
+          <div class="p-5 md:p-8 pt-5 md:pt-6">
+            <!-- search box with icon (tailwind styled) full width always ok -->
             <div class="relative mb-6">
               <span
                 class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl"
@@ -201,18 +188,20 @@
                 class="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-slate-900 placeholder:text-slate-400"
               />
             </div>
-            <!-- table with cleaner style -->
+            <!-- table with cleaner style - overflow-x-auto ensures scroll on mobile, no page break -->
             <div class="overflow-x-auto">
               <table class="w-full text-sm">
                 <thead
                   class="text-slate-500 text-xs font-semibold uppercase tracking-wider border-b border-slate-200"
                 >
                   <tr>
-                    <th class="text-left pb-3 pl-2">Name</th>
-                    <th class="text-left pb-3">Matric No</th>
-                    <th class="text-left pb-3">Department</th>
-                    <th class="text-left pb-3">Level</th>
-                    <th class="text-left pb-3 pr-2">Actions</th>
+                    <th class="text-left pb-3 pl-2 whitespace-nowrap">Name</th>
+                    <th class="text-left pb-3 whitespace-nowrap">Matric No</th>
+                    <th class="text-left pb-3 whitespace-nowrap">Department</th>
+                    <th class="text-left pb-3 whitespace-nowrap">Level</th>
+                    <th class="text-left pb-3 pr-2 whitespace-nowrap">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody id="studentsBody" class="text-slate-700">
@@ -235,8 +224,9 @@
         <div
           class="bg-white rounded-xl shadow-sm border border-slate-200 hover:shadow-xl hover:border-primary/20 transition-all duration-300 mb-8 overflow-hidden"
         >
+          <!-- header: stack on mobile -->
           <div
-            class="p-8 pb-6 border-b border-slate-100 flex flex-wrap items-center justify-between gap-4"
+            class="p-8 md:p-8 pb-6 md:pb-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
           >
             <div class="flex items-center gap-3">
               <div
@@ -249,7 +239,7 @@
               <h2 class="text-2xl font-bold text-slate-900">Courses</h2>
             </div>
             <button
-              class="bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-6 rounded-xl flex items-center gap-2 transition-all shadow-sm text-sm"
+              class="bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-6 rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm text-sm w-full md:w-auto"
               onclick="openModal('courseModal')"
             >
               <span class="material-symbols-outlined text-lg">add</span> Add
@@ -257,8 +247,9 @@
             </button>
           </div>
 
-          <div class="p-8 pt-6">
-            <!-- Search box for courses (optional - you can add if needed) -->
+          <!-- body: reduce padding mobile -->
+          <div class="p-5 md:p-8 pt-5 md:pt-6">
+            <!-- Search box for courses -->
             <div class="relative mb-6">
               <span
                 class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl"
@@ -280,10 +271,18 @@
                   class="text-slate-500 text-xs font-semibold uppercase tracking-wider border-b border-slate-200"
                 >
                   <tr>
-                    <th class="text-left pb-3 pl-2">Course Code</th>
-                    <th class="text-left pb-3">Course Title</th>
-                    <th class="text-left pb-3">Credit Units</th>
-                    <th class="text-left pb-3 pr-2">Actions</th>
+                    <th class="text-left pb-3 pl-2 whitespace-nowrap">
+                      Course Code
+                    </th>
+                    <th class="text-left pb-3 whitespace-nowrap">
+                      Course Title
+                    </th>
+                    <th class="text-left pb-3 whitespace-nowrap">
+                      Credit Units
+                    </th>
+                    <th class="text-left pb-3 pr-2 whitespace-nowrap">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody id="coursesBody" class="text-slate-700">
@@ -307,7 +306,7 @@
       </div>
     </main>
 
-    <!-- footer exactly like index (compact, with school icon) -->
+    <!-- footer exactly like index (compact, with school icon) unchanged, safe -->
     <footer class="border-t border-slate-200 bg-white py-4">
       <div class="max-w-[1200px] mx-auto px-6">
         <div
@@ -329,174 +328,224 @@
       </div>
     </footer>
 
-    <!-- STUDENT MODAL (redesigned with tailwind classes, but keeping same ids/ structure) -->
-    <div id="studentModal" class="modal" style="display: none">
-      <div class="modal-content">
-        <span class="close" onclick="closeModal('studentModal')">&times;</span>
-        <h2
-          id="studentModalTitle"
-          class="text-2xl font-bold text-slate-900 mb-6"
+    <!-- STUDENT MODAL - Fixed centering; on tiny mobile allow buttons to stack using extra class hook -->
+    <div
+      id="studentModal"
+      class="fixed inset-0 z-50 hidden bg-black/40 backdrop-blur-sm"
+      style="display: none"
+    >
+      <div class="flex items-center justify-center min-h-screen px-4">
+        <div
+          class="relative bg-white p-5 md:p-8 rounded-2xl max-w-[480px] w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-primary/15 animate-[fadeIn_0.3s_ease]"
         >
-          Add Student
-        </h2>
-        <form id="studentForm" onsubmit="saveStudent(event)">
-          <input type="hidden" id="studentId" />
-          <div class="mb-5">
-            <label
-              for="studentName"
-              class="block text-sm font-semibold text-slate-700 mb-2"
-              >Full name</label
-            >
-            <input
-              type="text"
-              id="studentName"
-              placeholder="e.g., Alex Johnson"
-              required
-              class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
-            />
-          </div>
-          <div class="mb-5">
-            <label
-              for="studentMatric"
-              class="block text-sm font-semibold text-slate-700 mb-2"
-              >Matric No</label
-            >
-            <input
-              type="text"
-              id="studentMatric"
-              placeholder="e.g., U1CS2409TR"
-              required
-              class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
-            />
-          </div>
-          <div class="mb-5">
-            <label
-              for="studentDepartment"
-              class="block text-sm font-semibold text-slate-700 mb-2"
-              >Department</label
-            >
-            <input
-              type="text"
-              id="studentDepartment"
-              placeholder="e.g., Computer Science"
-              required
-              class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
-            />
-          </div>
-          <div class="mb-6">
-            <label
-              for="studentLevel"
-              class="block text-sm font-semibold text-slate-700 mb-2"
-              >Level</label
-            >
-            <select
-              id="studentLevel"
-              required
-              class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
-            >
-              <option value="">Select Level</option>
-              <option value="100">100 Level</option>
-              <option value="200">200 Level</option>
-              <option value="300">300 Level</option>
-              <option value="400">400 Level</option>
-              <option value="500">500 Level</option>
-            </select>
-          </div>
-          <div class="flex gap-3">
-            <button
-              type="submit"
-              class="bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-6 rounded-xl transition flex-1"
-            >
-              Save
-            </button>
-            <button
-              type="button"
-              class="bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold py-3 px-6 rounded-xl transition flex-1"
-              onclick="closeModal('studentModal')"
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
+          <!-- Close button -->
+          <button
+            onclick="closeModal('studentModal')"
+            class="absolute right-6 top-6 text-3xl font-semibold text-slate-400 hover:text-primary transition-colors cursor-pointer"
+          >
+            &times;
+          </button>
+
+          <h2
+            id="studentModalTitle"
+            class="text-2xl font-bold text-slate-900 mb-6"
+          >
+            Add Student
+          </h2>
+
+          <form id="studentForm" onsubmit="saveStudent(event)">
+            <input type="hidden" id="studentId" />
+
+            <div class="mb-5">
+              <label
+                for="studentName"
+                class="block text-sm font-semibold text-slate-700 mb-2"
+              >
+                Full name
+              </label>
+              <input
+                type="text"
+                id="studentName"
+                placeholder="e.g., Alex Johnson"
+                required
+                class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
+              />
+            </div>
+
+            <div class="mb-5">
+              <label
+                for="studentMatric"
+                class="block text-sm font-semibold text-slate-700 mb-2"
+              >
+                Matric No
+              </label>
+              <input
+                type="text"
+                id="studentMatric"
+                placeholder="e.g., U1CS2409TR"
+                required
+                class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
+              />
+            </div>
+
+            <div class="mb-5">
+              <label
+                for="studentDepartment"
+                class="block text-sm font-semibold text-slate-700 mb-2"
+              >
+                Department
+              </label>
+              <input
+                type="text"
+                id="studentDepartment"
+                placeholder="e.g., Computer Science"
+                required
+                class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
+              />
+            </div>
+
+            <div class="mb-6">
+              <label
+                for="studentLevel"
+                class="block text-sm font-semibold text-slate-700 mb-2"
+              >
+                Level
+              </label>
+              <select
+                id="studentLevel"
+                required
+                class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
+              >
+                <option value="">Select Level</option>
+                <option value="100">100 Level</option>
+                <option value="200">200 Level</option>
+                <option value="300">300 Level</option>
+                <option value="400">400 Level</option>
+                <option value="500">500 Level</option>
+              </select>
+            </div>
+
+            <!-- mobile: allow vertical stacking if needed (under 360px) using flex-col + sm:flex-row -->
+            <div class="flex flex-col sm:flex-row gap-3">
+              <button
+                type="submit"
+                class="bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-6 rounded-xl transition flex-1"
+              >
+                Save
+              </button>
+              <button
+                type="button"
+                class="bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold py-3 px-6 rounded-xl transition flex-1"
+                onclick="closeModal('studentModal')"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
 
-    <!-- COURSE MODAL (same restyling) -->
-    <div id="courseModal" class="modal" style="display: none">
-      <div class="modal-content">
-        <span class="close" onclick="closeModal('courseModal')">&times;</span>
-        <h2
-          id="courseModalTitle"
-          class="text-2xl font-bold text-slate-900 mb-6"
+    <!-- COURSE MODAL - Fixed centering; similar mobile adjustments -->
+    <div
+      id="courseModal"
+      class="fixed inset-0 z-50 hidden bg-black/40 backdrop-blur-sm"
+      style="display: none"
+    >
+      <div class="flex items-center justify-center min-h-screen px-4">
+        <div
+          class="relative bg-white p-5 md:p-8 rounded-2xl max-w-[480px] w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-primary/15 animate-[fadeIn_0.3s_ease]"
         >
-          Add Course
-        </h2>
-        <form id="courseForm" onsubmit="saveCourse(event)">
-          <input type="hidden" id="courseId" />
-          <div class="mb-5">
-            <label
-              for="courseCode"
-              class="block text-sm font-semibold text-slate-700 mb-2"
-              >Course Code</label
-            >
-            <input
-              type="text"
-              id="courseCode"
-              placeholder="e.g., CSC411"
-              required
-              class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
-            />
-          </div>
-          <div class="mb-5">
-            <label
-              for="courseTitle"
-              class="block text-sm font-semibold text-slate-700 mb-2"
-              >Course Title</label
-            >
-            <input
-              type="text"
-              id="courseTitle"
-              placeholder="e.g., Software Engineering"
-              required
-              class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
-            />
-          </div>
-          <div class="mb-6">
-            <label
-              for="creditUnit"
-              class="block text-sm font-semibold text-slate-700 mb-2"
-              >Credit Unit</label
-            >
-            <select
-              id="creditUnit"
-              required
-              class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
-            >
-              <option value="">Select Credit Unit</option>
-              <option value="1">1 Credit</option>
-              <option value="2">2 Credits</option>
-              <option value="3">3 Credits</option>
-              <option value="4">4 Credits</option>
-              <option value="5">5 Credits</option>
-              <option value="6">6 Credits</option>
-            </select>
-          </div>
-          <div class="flex gap-3">
-            <button
-              type="submit"
-              class="bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-6 rounded-xl transition flex-1"
-            >
-              Save
-            </button>
-            <button
-              type="button"
-              class="bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold py-3 px-6 rounded-xl transition flex-1"
-              onclick="closeModal('courseModal')"
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
+          <!-- Close button -->
+          <button
+            onclick="closeModal('courseModal')"
+            class="absolute right-6 top-6 text-3xl font-semibold text-slate-400 hover:text-primary transition-colors cursor-pointer"
+          >
+            &times;
+          </button>
+
+          <h2
+            id="courseModalTitle"
+            class="text-2xl font-bold text-slate-900 mb-6"
+          >
+            Add Course
+          </h2>
+
+          <form id="courseForm" onsubmit="saveCourse(event)">
+            <input type="hidden" id="courseId" />
+
+            <div class="mb-5">
+              <label
+                for="courseCode"
+                class="block text-sm font-semibold text-slate-700 mb-2"
+              >
+                Course Code
+              </label>
+              <input
+                type="text"
+                id="courseCode"
+                placeholder="e.g., CSC411"
+                required
+                class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
+              />
+            </div>
+
+            <div class="mb-5">
+              <label
+                for="courseTitle"
+                class="block text-sm font-semibold text-slate-700 mb-2"
+              >
+                Course Title
+              </label>
+              <input
+                type="text"
+                id="courseTitle"
+                placeholder="e.g., Software Engineering"
+                required
+                class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
+              />
+            </div>
+
+            <div class="mb-6">
+              <label
+                for="creditUnit"
+                class="block text-sm font-semibold text-slate-700 mb-2"
+              >
+                Credit Unit
+              </label>
+              <select
+                id="creditUnit"
+                required
+                class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
+              >
+                <option value="">Select Credit Unit</option>
+                <option value="1">1 Credit</option>
+                <option value="2">2 Credits</option>
+                <option value="3">3 Credits</option>
+                <option value="4">4 Credits</option>
+                <option value="5">5 Credits</option>
+                <option value="6">6 Credits</option>
+              </select>
+            </div>
+
+            <!-- flex-col on smallest, row on sm and up -->
+            <div class="flex flex-col sm:flex-row gap-3">
+              <button
+                type="submit"
+                class="bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-6 rounded-xl transition flex-1"
+              >
+                Save
+              </button>
+              <button
+                type="button"
+                class="bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold py-3 px-6 rounded-xl transition flex-1"
+                onclick="closeModal('courseModal')"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
 
@@ -504,30 +553,5 @@
     <script src="js/config.js"></script>
     <script src="js/main.js"></script>
     <script src="js/admin.js"></script>
-
-    <!-- small bridge to ensure modal functions are available (they exist in admin.js) 
-         and also to keep tailwind interactive classes for potential dynamic rows -->
-    <script>
-      // quick helper to keep modal opening/closing functions from original,
-      // but we also redefine them as fallback in case they are not loaded yet?
-      // They will be overwritten by admin.js definitions, but we ensure window functions exist.
-      window.openModal =
-        window.openModal ||
-        function (modalId) {
-          document.getElementById(modalId).style.display = "flex";
-        };
-      window.closeModal =
-        window.closeModal ||
-        function (modalId) {
-          document.getElementById(modalId).style.display = "none";
-        };
-      // searchStudents is defined in admin.js, keep it.
-      // optional: close modal when clicking outside
-      window.onclick = function (event) {
-        if (event.target.classList.contains("modal")) {
-          event.target.style.display = "none";
-        }
-      };
-    </script>
   </body>
 </html>
