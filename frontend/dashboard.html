@@ -2,135 +2,418 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dashboard - Academic Performance System</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes"
+    />
+    <title>Dashboard – Academic Analytics</title>
+
+    <!-- Tailwind + plugins (forms, container-queries) exactly like admin -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Google Fonts: Inter + Material Symbols Outlined (same as admin) -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="css/style.css" />
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#135bec",
+              "background-light": "#f6f6f8",
+              "background-dark": "#101622",
+            },
+            fontFamily: {
+              display: ["Inter"],
+            },
+            borderRadius: {
+              DEFAULT: "0.5rem",
+              lg: "1rem",
+              xl: "1.5rem",
+              full: "9999px",
+            },
+          },
+        },
+      };
+    </script>
+
+    <style>
+      /* glass-nav effect from admin */
+      .glass-nav {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      }
+      /* spinner with primary color (used in loading row) */
+      .spinner {
+        border: 3px solid rgba(19, 91, 236, 0.1);
+        border-top-color: #135bec;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 0.8s linear infinite;
+        margin: 0 auto;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      /* minimal mobile edge helpers (same safety as admin) */
+      @media (max-width: 767px) {
+        .nav-stack-mobile {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.25rem;
+        }
+      }
+      body {
+        overflow-x: hidden;
+        width: 100%;
+        position: relative;
+      }
+      /* tiny extra: make filter container items stack full width on mobile */
+      @media (max-width: 640px) {
+        .filter-mobile-stack {
+          flex-direction: column;
+        }
+        .filter-mobile-stack > * {
+          width: 100%;
+        }
+      }
+      /* hover card transition as admin */
+      .card-hover {
+        transition: all 0.3s ease;
+      }
+      .card-hover:hover {
+        box-shadow:
+          0 20px 25px -5px rgb(0 0 0 / 0.1),
+          0 8px 10px -6px rgb(0 0 0 / 0.1);
+        border-color: rgba(19, 91, 236, 0.2);
+      }
+    </style>
   </head>
-  <body>
-    <nav class="navbar">
-      <div class="container">
-        <a href="index.html" class="navbar-brand"
-          >Academic Performance System</a
+  <body
+    class="bg-background-light font-display text-slate-900 min-h-screen antialiased overflow-x-hidden"
+  >
+    <!-- ========== FIXED GLASS NAVBAR (EXACTLY LIKE ADMIN) ========== -->
+    <nav
+      class="fixed top-0 left-0 right-0 z-50 glass-nav border-b border-primary/10"
+    >
+      <div
+        class="max-w-[1200px] mx-auto px-6 h-20 flex items-center justify-between"
+      >
+        <!-- Logo Left -->
+        <a href="index.html" class="flex items-center gap-3">
+          <div class="bg-primary text-white p-2 rounded-lg">
+            <span class="material-symbols-outlined">school</span>
+          </div>
+          <span class="font-bold text-lg">Academic Analytics</span>
+        </a>
+
+        <!-- Desktop Navigation Links (hidden on mobile) -->
+        <div
+          class="hidden md:flex items-center gap-8 font-semibold text-slate-700"
         >
-        <ul class="navbar-nav">
-          <li><a href="index.html">Home</a></li>
-          <li><a href="admin.html">Admin</a></li>
-          <li><a href="lecturer.html">Lecturer</a></li>
-          <li><a href="dashboard.html" class="active">Dashboard</a></li>
-        </ul>
+          <a href="lecturer.html" class="hover:text-primary">Lecturer</a>
+          <a href="admin.html" class="text-primary font-bold">Admin</a>
+        </div>
+
+        <!-- Right side button (matches admin) -->
+        <div class="flex items-center gap-3">
+          <button
+            class="bg-primary text-white px-4 py-2 rounded-lg text-sm font-semibold"
+          >
+            Dashboard
+          </button>
+        </div>
       </div>
     </nav>
 
-    <div class="container">
-      <!-- Risk Statistics -->
-      <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">Risk Statistics</h2>
-          <button
-            class="refresh-btn"
-            onclick="refreshDashboard()"
-            id="refreshBtn"
+    <!-- ========== MAIN with top padding ========== -->
+    <main class="pt-28 md:pt-32 pb-20 px-6">
+      <div class="max-w-[1200px] mx-auto">
+        <!-- ========== PAGE HEADER (HERO CAPTION LIKE ADMIN) ========== -->
+        <div class="mb-10">
+          <h1
+            class="text-3xl md:text-5xl font-black text-slate-900 leading-[1.2] tracking-tight"
           >
-            ↻ Refresh
-          </button>
+            Academic <span class="text-primary">Risk Insights</span>
+          </h1>
+          <p class="text-base text-slate-600 max-w-2xl mt-3">
+            Real‑time at‑risk predictions and model performance metrics.
+          </p>
         </div>
-        <div class="stats-grid" id="statistics">
-          <!-- Statistics will be loaded here -->
+
+        <!-- ========== RISK STATISTICS CARD ========== -->
+        <div
+          class="bg-white rounded-xl shadow-sm border border-slate-200 card-hover mb-8 overflow-hidden"
+        >
+          <!-- Card header: icon + title left, refresh button right -->
+          <div
+            class="p-5 md:p-8 pb-4 md:pb-6 border-b border-slate-100 flex flex-wrap items-center justify-between gap-4"
+          >
+            <div class="flex items-center gap-3">
+              <div
+                class="w-10 h-10 bg-primary/10 text-primary rounded-lg flex items-center justify-center"
+              >
+                <span class="material-symbols-outlined text-2xl"
+                  >monitoring</span
+                >
+              </div>
+              <h2 class="text-2xl font-bold text-slate-900">Risk Statistics</h2>
+            </div>
+            <button
+              class="bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-6 rounded-xl flex items-center gap-2 transition-all shadow-sm text-sm w-full md:w-auto"
+              onclick="refreshDashboard()"
+              id="refreshBtn"
+            >
+              <span class="material-symbols-outlined text-lg">refresh</span>
+              Refresh
+            </button>
+          </div>
+          <!-- Body: stats grid (responsive columns) -->
+          <div class="p-5 md:p-8 pt-5 md:pt-6">
+            <div
+              id="statistics"
+              class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+            >
+              <!-- stats injected by JS, but we add a sample loader structure (will be replaced) -->
+              <!-- static fallback only for structure; actual JS will override -->
+            </div>
+          </div>
+        </div>
+
+        <!-- ========== MODEL PERFORMANCE CARD ========== -->
+        <div
+          class="bg-white rounded-xl shadow-sm border border-slate-200 card-hover mb-8 overflow-hidden"
+        >
+          <div
+            class="p-5 md:p-8 pb-4 md:pb-6 border-b border-slate-100 flex items-center gap-3"
+          >
+            <div
+              class="w-10 h-10 bg-primary/10 text-primary rounded-lg flex items-center justify-center"
+            >
+              <span class="material-symbols-outlined text-2xl">speed</span>
+            </div>
+            <h2 class="text-2xl font-bold text-slate-900">Model Performance</h2>
+          </div>
+          <div class="p-5 md:p-8 pt-5 md:pt-6">
+            <div
+              id="metrics"
+              class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4"
+            >
+              <!-- dynamic metrics appear here -->
+            </div>
+          </div>
+        </div>
+
+        <!-- ========== PREDICTION WARNING (PREMIUM ALERT) ========== -->
+        <div
+          id="predictionWarning"
+          class="bg-amber-50 border border-amber-200 text-amber-900 rounded-xl p-5 md:p-6 mb-8 hidden"
+          style="display: none"
+        >
+          <div
+            class="flex flex-col sm:flex-row items-start sm:items-center gap-4"
+          >
+            <div class="flex items-center gap-3 w-full sm:w-auto">
+              <span class="material-symbols-outlined text-amber-600 text-3xl"
+                >warning</span
+              >
+              <strong class="font-semibold">No predictions found.</strong>
+              <span class="text-amber-800 text-sm sm:text-base"
+                >Click to generate.</span
+              >
+            </div>
+            <button
+              class="bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-6 rounded-xl transition-all shadow-sm text-sm w-full sm:w-auto ml-auto"
+              onclick="generatePredictions()"
+            >
+              Generate Now
+            </button>
+          </div>
+        </div>
+
+        <!-- ========== STUDENT RISK ANALYSIS CARD (with table + filters) ========== -->
+        <div
+          class="bg-white rounded-xl shadow-sm border border-slate-200 card-hover mb-8 overflow-hidden"
+        >
+          <!-- Card header -->
+          <div
+            class="p-5 md:p-8 pb-4 md:pb-6 border-b border-slate-100 flex items-center gap-3"
+          >
+            <div
+              class="w-10 h-10 bg-primary/10 text-primary rounded-lg flex items-center justify-center"
+            >
+              <span class="material-symbols-outlined text-2xl"
+                >assignment_turned_in</span
+              >
+            </div>
+            <h2 class="text-2xl font-bold text-slate-900">
+              Student Risk Analysis
+            </h2>
+          </div>
+
+          <!-- Filter bar (mobile friendly) -->
+          <div class="p-5 md:p-8 pt-5 md:pt-6">
+            <div
+              class="filter-mobile-stack flex flex-col md:flex-row gap-3 md:items-center mb-6"
+            >
+              <!-- search with icon (left) -->
+              <div class="relative flex-1">
+                <span
+                  class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl"
+                  >search</span
+                >
+                <input
+                  type="text"
+                  id="searchInput"
+                  placeholder="Search by name or matric..."
+                  onkeyup="filterStudents()"
+                  class="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-slate-900 placeholder:text-slate-400"
+                />
+              </div>
+
+              <!-- level filter select -->
+              <select
+                id="levelFilter"
+                onchange="filterStudents()"
+                class="px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all appearance-none cursor-pointer min-w-[140px]"
+                style="
+                  background-image: url(&quot;data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 fill=%22none%22 viewBox=%220 0 24 24%22 stroke-width=%221.5%22 stroke=%22%23475569%22 class=%22w-4 h-4%22><path stroke-linecap=%22round%22 stroke-linejoin=%22round%22 d=%22M19.5 8.25l-7.5 7.5-7.5-7.5%22 /></svg>&quot;);
+                  background-repeat: no-repeat;
+                  background-position: right 1rem center;
+                  background-size: 1.25rem;
+                "
+              >
+                <option value="">All Levels</option>
+                <option value="100">100 Level</option>
+                <option value="200">200 Level</option>
+                <option value="300">300 Level</option>
+                <option value="400">400 Level</option>
+                <option value="500">500 Level</option>
+              </select>
+
+              <!-- risk filter select -->
+              <select
+                id="riskFilter"
+                onchange="filterStudents()"
+                class="px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all appearance-none cursor-pointer min-w-[140px]"
+                style="
+                  background-image: url(&quot;data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 fill=%22none%22 viewBox=%220 0 24 24%22 stroke-width=%221.5%22 stroke=%22%23475569%22 class=%22w-4 h-4%22><path stroke-linecap=%22round%22 stroke-linejoin=%22round%22 d=%22M19.5 8.25l-7.5 7.5-7.5-7.5%22 /></svg>&quot;);
+                  background-repeat: no-repeat;
+                  background-position: right 1rem center;
+                  background-size: 1.25rem;
+                "
+              >
+                <option value="">All Risks</option>
+                <option value="High">High Risk</option>
+                <option value="Medium">Medium Risk</option>
+                <option value="Low">Low Risk</option>
+              </select>
+
+              <!-- export button -->
+              <button
+                class="bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold py-3 px-6 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 whitespace-nowrap"
+                onclick="exportToCSV()"
+              >
+                <span class="material-symbols-outlined text-lg">download</span>
+                Export CSV
+              </button>
+            </div>
+
+            <!-- Table container with horizontal scroll only inside -->
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead
+                  class="text-slate-500 text-xs font-semibold uppercase tracking-wider border-b border-slate-200"
+                >
+                  <tr>
+                    <th class="text-left pb-3 pl-2 whitespace-nowrap">
+                      Matric No
+                    </th>
+                    <th class="text-left pb-3 whitespace-nowrap">Name</th>
+                    <th class="text-left pb-3 whitespace-nowrap">Level</th>
+                    <th class="text-left pb-3 whitespace-nowrap">Department</th>
+                    <th class="text-left pb-3 whitespace-nowrap">Attendance</th>
+                    <th class="text-left pb-3 whitespace-nowrap">
+                      Assessment Avg
+                    </th>
+                    <th class="text-left pb-3 whitespace-nowrap">
+                      Predicted Score
+                    </th>
+                    <th class="text-left pb-3 pr-2 whitespace-nowrap">
+                      Risk Status
+                    </th>
+                  </tr>
+                </thead>
+                <tbody id="studentsBody" class="text-slate-700">
+                  <!-- spinner row preserved, but restyled -->
+                  <tr id="studentsLoadingRow">
+                    <td colspan="8" class="text-center py-12">
+                      <div class="spinner"></div>
+                      <p class="mt-4 text-sm text-slate-500">
+                        Loading students...
+                      </p>
+                    </td>
+                  </tr>
+                  <!-- dynamic rows will be injected here -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Pagination container (same ID) -->
+            <div
+              id="pagination"
+              class="mt-6 flex justify-center items-center gap-2"
+            ></div>
+          </div>
         </div>
       </div>
+    </main>
 
-      <!-- Model Metrics -->
-      <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">Model Performance</h2>
-        </div>
-        <div class="metrics-grid" id="metrics">
-          <!-- Metrics will be loaded here -->
+    <!-- ========== FOOTER (exactly like admin) ========== -->
+    <footer class="border-t border-slate-200 bg-white py-4">
+      <div class="max-w-[1200px] mx-auto px-6">
+        <div
+          class="flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-2 text-sm text-slate-500"
+        >
+          <div class="flex items-center gap-2">
+            <div
+              class="bg-primary text-white p-1 rounded flex items-center justify-center"
+            >
+              <span class="material-symbols-outlined text-base">school</span>
+            </div>
+            <span class="font-semibold text-slate-900">Academic Analytics</span>
+          </div>
+          <div class="text-slate-400">
+            © 2026 University Academic Systems. Built for Institutional
+            Excellence.
+          </div>
         </div>
       </div>
+    </footer>
 
-      <!-- Prediction Warning -->
-      <div
-        id="predictionWarning"
-        class="prediction-warning"
-        style="display: none"
-      >
-        <span>⚠️</span>
-        <strong>No predictions found.</strong>
-        <span style="flex: 1">Click the button to generate predictions.</span>
-        <button class="btn btn-primary" onclick="generatePredictions()">
-          Generate Now
-        </button>
-      </div>
-
-      <!-- Students Table -->
-      <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">Student Risk Analysis</h2>
-        </div>
-
-        <div class="filter-container">
-          <input
-            type="text"
-            id="searchInput"
-            placeholder="Search by name or matric..."
-            onkeyup="filterStudents()"
-          />
-          <select id="levelFilter" onchange="filterStudents()">
-            <option value="">All Levels</option>
-            <option value="100">100 Level</option>
-            <option value="200">200 Level</option>
-            <option value="300">300 Level</option>
-            <option value="400">400 Level</option>
-            <option value="500">500 Level</option>
-          </select>
-          <select id="riskFilter" onchange="filterStudents()">
-            <option value="">All Risks</option>
-            <option value="High">High Risk</option>
-            <option value="Medium">Medium Risk</option>
-            <option value="Low">Low Risk</option>
-          </select>
-          <button class="btn btn-secondary" onclick="exportToCSV()">
-            Export CSV
-          </button>
-        </div>
-
-        <div class="table-responsive">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Matric No</th>
-                <th>Name</th>
-                <th>Level</th>
-                <th>Department</th>
-                <th>Attendance</th>
-                <th>Assessment Avg</th>
-                <th>Predicted Score</th>
-                <th>Risk Status</th>
-              </tr>
-            </thead>
-            <tbody id="studentsBody">
-              <tr>
-                <td colspan="8" style="text-align: center; padding: 40px">
-                  <div class="spinner"></div>
-                  <p style="margin-top: 15px; color: #666">Loading...</p>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div id="pagination"></div>
-      </div>
-    </div>
+    <!-- original script tags (preserve logic, IDs, hooks) -->
     <script src="js/config.js"></script>
     <script src="js/main.js"></script>
     <script src="js/dashboard.js"></script>
-  </body>
+
+    <!-- ensure that the existing JS will populate the containers correctly.
+       we leave IDs unchanged: statistics, metrics, predictionWarning, etc.
+       The spinner row inside #studentsBody will be replaced by JS dynamically. 
+       All function calls (refreshDashboard, generatePredictions, filterStudents, exportToCSV) remain attached.
+  --></body>
 </html>

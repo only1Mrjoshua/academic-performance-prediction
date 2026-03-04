@@ -66,9 +66,9 @@ function showLoading() {
     if (tbody) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="8" style="text-align: center; padding: 40px;">
+                <td colspan="8" class="text-center py-12">
                     <div class="spinner"></div>
-                    <p style="margin-top: 15px;">Loading...</p>
+                    <p class="mt-4 text-sm text-slate-500">Loading students...</p>
                 </td>
             </tr>
         `;
@@ -83,30 +83,30 @@ function displayStatistics() {
     const statsGrid = document.getElementById("statistics");
 
     if (!statistics) {
-        if (statsGrid) statsGrid.innerHTML = "<p>No statistics available</p>";
+        if (statsGrid) statsGrid.innerHTML = '<div class="text-slate-500 p-4 text-center col-span-4">No statistics available</div>';
         return;
     }
 
     if (statsGrid) {
         statsGrid.innerHTML = `
-            <div class="stat-card">
-                <div class="stat-label">Total Students</div>
-                <div class="stat-value">${statistics.total_students || 0}</div>
+            <div class="bg-slate-50/60 border border-slate-200 rounded-xl p-5">
+                <div class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Total Students</div>
+                <div class="text-3xl font-bold text-slate-900">${statistics.total_students || 0}</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-label">Low Risk</div>
-                <div class="stat-value">${statistics.low_risk || 0}</div>
-                <div class="stat-percentage">${(statistics.low_risk_percentage || 0).toFixed(1)}%</div>
+            <div class="bg-slate-50/60 border border-slate-200 rounded-xl p-5">
+                <div class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Low Risk</div>
+                <div class="text-3xl font-bold text-green-600">${statistics.low_risk || 0}</div>
+                <div class="text-sm text-slate-500 mt-1">${(statistics.low_risk_percentage || 0).toFixed(1)}% of total</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-label">Medium Risk</div>
-                <div class="stat-value">${statistics.medium_risk || 0}</div>
-                <div class="stat-percentage">${(statistics.medium_risk_percentage || 0).toFixed(1)}%</div>
+            <div class="bg-slate-50/60 border border-slate-200 rounded-xl p-5">
+                <div class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Medium Risk</div>
+                <div class="text-3xl font-bold text-amber-600">${statistics.medium_risk || 0}</div>
+                <div class="text-sm text-slate-500 mt-1">${(statistics.medium_risk_percentage || 0).toFixed(1)}% of total</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-label">High Risk</div>
-                <div class="stat-value">${statistics.high_risk || 0}</div>
-                <div class="stat-percentage">${(statistics.high_risk_percentage || 0).toFixed(1)}%</div>
+            <div class="bg-slate-50/60 border border-slate-200 rounded-xl p-5">
+                <div class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">High Risk</div>
+                <div class="text-3xl font-bold text-red-600">${statistics.high_risk || 0}</div>
+                <div class="text-sm text-slate-500 mt-1">${(statistics.high_risk_percentage || 0).toFixed(1)}% of total</div>
             </div>
         `;
     }
@@ -116,27 +116,27 @@ function displayMetrics() {
     const metricsGrid = document.getElementById("metrics");
 
     if (!metrics || metrics.message) {
-        if (metricsGrid) metricsGrid.innerHTML = "<p>No metrics available</p>";
+        if (metricsGrid) metricsGrid.innerHTML = '<div class="text-slate-500 p-4 text-center col-span-4">No metrics available</div>';
         return;
     }
 
     if (metricsGrid) {
         metricsGrid.innerHTML = `
-            <div class="metric-card">
-                <div class="metric-value">${((metrics.accuracy || 0) * 100).toFixed(1)}%</div>
-                <div class="metric-label">Accuracy</div>
+            <div class="bg-slate-50/60 border border-slate-200 rounded-xl p-5">
+                <div class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Accuracy</div>
+                <div class="text-3xl font-bold text-primary">${((metrics.accuracy || 0) * 100).toFixed(1)}%</div>
             </div>
-            <div class="metric-card">
-                <div class="metric-value">${((metrics.precision || 0) * 100).toFixed(1)}%</div>
-                <div class="metric-label">Precision</div>
+            <div class="bg-slate-50/60 border border-slate-200 rounded-xl p-5">
+                <div class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Precision</div>
+                <div class="text-3xl font-bold text-primary">${((metrics.precision || 0) * 100).toFixed(1)}%</div>
             </div>
-            <div class="metric-card">
-                <div class="metric-value">${((metrics.recall || 0) * 100).toFixed(1)}%</div>
-                <div class="metric-label">Recall</div>
+            <div class="bg-slate-50/60 border border-slate-200 rounded-xl p-5">
+                <div class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Recall</div>
+                <div class="text-3xl font-bold text-primary">${((metrics.recall || 0) * 100).toFixed(1)}%</div>
             </div>
-            <div class="metric-card">
-                <div class="metric-value">${((metrics.f1_score || 0) * 100).toFixed(1)}%</div>
-                <div class="metric-label">F1-Score</div>
+            <div class="bg-slate-50/60 border border-slate-200 rounded-xl p-5">
+                <div class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">F1-Score</div>
+                <div class="text-3xl font-bold text-primary">${((metrics.f1_score || 0) * 100).toFixed(1)}%</div>
             </div>
         `;
     }
@@ -150,8 +150,8 @@ function displayStudents() {
     if (!allStudents || allStudents.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="8" style="text-align: center; padding: 40px;">
-                    <p>No student data available</p>
+                <td colspan="8" class="text-center py-12">
+                    <p class="text-slate-500">No student data available</p>
                 </td>
             </tr>
         `;
@@ -178,15 +178,17 @@ function displayStudents() {
             : "0.0";
 
         html += `
-            <tr>
-                <td>${escapeHtml(student.matric_no) || "N/A"}</td>
-                <td>${escapeHtml(student.student_name) || "N/A"}</td>
-                <td>${escapeHtml(student.level) || "N/A"}</td>
-                <td>${escapeHtml(student.department) || "N/A"}</td>
-                <td>${attendance}${attendance !== "N/A" ? "%" : ""}</td>
-                <td>${assessmentAvg}</td>
-                <td><strong>${predictedScore}</strong></td>
-                <td><span class="risk-badge ${riskClass}">${escapeHtml(student.risk_status) || "Unknown"}</span></td>
+            <tr class="hover:bg-slate-50 transition-colors">
+                <td class="py-4 px-2 border-b border-slate-100 text-slate-700">${escapeHtml(student.matric_no) || "N/A"}</td>
+                <td class="py-4 px-2 border-b border-slate-100 font-medium text-slate-900">${escapeHtml(student.student_name) || "N/A"}</td>
+                <td class="py-4 px-2 border-b border-slate-100 text-slate-700">${escapeHtml(student.level) || "N/A"}</td>
+                <td class="py-4 px-2 border-b border-slate-100 text-slate-700">${escapeHtml(student.department) || "N/A"}</td>
+                <td class="py-4 px-2 border-b border-slate-100 text-slate-700">${attendance}${attendance !== "N/A" ? "%" : ""}</td>
+                <td class="py-4 px-2 border-b border-slate-100 text-slate-700">${assessmentAvg}</td>
+                <td class="py-4 px-2 border-b border-slate-100 font-semibold text-primary">${predictedScore}</td>
+                <td class="py-4 px-2 border-b border-slate-100">
+                    <span class="risk-badge ${riskClass}">${escapeHtml(student.risk_status) || "Unknown"}</span>
+                </td>
             </tr>
         `;
     });
@@ -248,10 +250,32 @@ function updatePagination() {
         return;
     }
 
-    let html = "";
+    let html = '<div class="flex items-center gap-2">';
+    
+    // Previous button
+    html += `<button 
+        onclick="changePage(${currentPage - 1})" 
+        ${currentPage === 1 ? 'disabled' : ''}
+        class="px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+    >Previous</button>`;
+    
+    // Page numbers
     for (let i = 1; i <= totalPages; i++) {
-        html += `<button onclick="changePage(${i})" ${i === currentPage ? "disabled" : ""}>${i}</button>`;
+        if (i === currentPage) {
+            html += `<button class="px-4 py-2 rounded-xl bg-primary text-white font-semibold">${i}</button>`;
+        } else {
+            html += `<button onclick="changePage(${i})" class="px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-all">${i}</button>`;
+        }
     }
+    
+    // Next button
+    html += `<button 
+        onclick="changePage(${currentPage + 1})" 
+        ${currentPage === totalPages ? 'disabled' : ''}
+        class="px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+    >Next</button>`;
+    
+    html += '</div>';
     paginationDiv.innerHTML = html;
 }
 
@@ -264,8 +288,8 @@ async function generatePredictions() {
     try {
         const refreshBtn = document.getElementById("refreshBtn");
         if (refreshBtn) {
-            refreshBtn.disabled = true;
-            refreshBtn.textContent = "Generating...";
+            refreshBtn.disabled = false;
+            refreshBtn.innerHTML = '<span class="material-symbols-outlined text-lg">refresh</span> Refresh';
         }
 
         const result = await apiCall("/prediction/generate-all", "POST");
@@ -289,12 +313,12 @@ async function refreshDashboard() {
     const refreshBtn = document.getElementById("refreshBtn");
     if (refreshBtn) {
         refreshBtn.disabled = true;
-        refreshBtn.innerHTML = "↻ Refreshing...";
+        refreshBtn.innerHTML = '<span class="material-symbols-outlined text-lg animate-spin">refresh</span> Refreshing...';
     }
-    await loadAllData();
+    // After load:
     if (refreshBtn) {
         refreshBtn.disabled = false;
-        refreshBtn.innerHTML = "↻ Refresh";
+        refreshBtn.innerHTML = '<span class="material-symbols-outlined text-lg">refresh</span> Refresh';
     }
 }
 
