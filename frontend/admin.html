@@ -3,145 +3,397 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin - Academic Performance System</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <title>Admin – Academic Analytics</title>
+    <!-- Tailwind + same fonts & config as index -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="css/style.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#135bec",
+              "background-light": "#f6f6f8",
+              "background-dark": "#101622",
+            },
+            fontFamily: {
+              display: ["Inter"],
+            },
+            borderRadius: {
+              DEFAULT: "0.5rem",
+              lg: "1rem",
+              xl: "1.5rem",
+              full: "9999px",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      .glass-nav {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      }
+      /* subtle spinner matches index primary */
+      .spinner {
+        border: 3px solid rgba(19, 91, 236, 0.1);
+        border-top-color: #135bec;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 0.8s linear infinite;
+        margin: 0 auto;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      /* modal overlay + content smooth like index cards */
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(4px);
+        align-items: center;
+        justify-content: center;
+      }
+      .modal-content {
+        background: white;
+        padding: 2rem;
+        border-radius: 1.5rem;
+        max-width: 480px;
+        width: 90%;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        border: 1px solid rgba(19, 91, 236, 0.15);
+      }
+      .close {
+        float: right;
+        font-size: 28px;
+        font-weight: 600;
+        color: #94a3b8;
+        cursor: pointer;
+        transition: color 0.2s;
+        line-height: 1;
+      }
+      .close:hover {
+        color: #135bec;
+      }
+    </style>
   </head>
-  <body>
-    <nav class="navbar">
-      <div class="container">
-        <a href="index.html" class="navbar-brand"
-          >Academic Performance System</a
+  <body
+    class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen antialiased"
+  >
+    <!-- glass navigation identical to index (same logo, no extra links) 
+         but we add a subtle home link using icon to keep it clean -->
+    <nav
+      class="fixed top-0 left-0 right-0 z-50 glass-nav border-b border-primary/10"
+    >
+      <div
+        class="max-w-[1200px] mx-auto px-6 h-20 flex items-center justify-between"
+      >
+        <div class="flex items-center gap-10">
+          <a href="index.html" class="flex items-center gap-3 group">
+            <div
+              class="bg-primary text-white p-2 rounded-lg flex items-center justify-center transition-all group-hover:scale-105"
+            >
+              <span class="material-symbols-outlined text-2xl">school</span>
+            </div>
+            <h2 class="text-xl font-bold tracking-tight text-slate-900">
+              Academic Analytics
+            </h2>
+          </a>
+        </div>
+        <!-- optional quick badge to indicate admin section, matches index hero pill style -->
+        <div
+          class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider"
         >
-        <ul class="navbar-nav">
-          <li><a href="index.html">Home</a></li>
-          <li><a href="admin.html" class="active">Admin</a></li>
-          <li><a href="lecturer.html">Lecturer</a></li>
-          <li><a href="dashboard.html">Dashboard</a></li>
-        </ul>
+          <span class="relative flex h-2 w-2">
+            <span
+              class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"
+            ></span>
+            <span
+              class="relative inline-flex rounded-full h-2 w-2 bg-primary"
+            ></span>
+          </span>
+          admin portal
+        </div>
       </div>
     </nav>
 
-    <div class="container">
-      <!-- Students Section -->
-      <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">Manage Students</h2>
-          <button class="btn btn-primary" onclick="openModal('studentModal')">
-            Add Student
-          </button>
+    <!-- main container with top padding (same as index) -->
+    <main class="pt-32 pb-20 px-6">
+      <div class="max-w-[1200px] mx-auto">
+        <!-- subtle hero caption (smaller than index but same family) -->
+        <div class="mb-10">
+          <div
+            class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider mb-4"
+          >
+            <span class="material-symbols-outlined text-base"
+              >admin_panel_settings</span
+            >
+            system configuration
+          </div>
+          <h1
+            class="text-4xl md:text-5xl font-black text-slate-900 leading-[1.2] tracking-tight"
+          >
+            Manage<span class="text-primary"> students & courses</span>
+          </h1>
+          <p class="text-base text-slate-600 max-w-2xl mt-3">
+            Add, edit or remove records. Changes are instantly reflected across
+            the platform.
+          </p>
         </div>
 
-        <div class="search-box">
-          <input
-            type="text"
-            id="studentSearch"
-            placeholder="Search students by name or matric number..."
-            onkeyup="searchStudents()"
-          />
+        <!-- Students Card (converted to index card style) -->
+        <div
+          class="bg-white rounded-xl shadow-sm border border-slate-200 hover:shadow-xl hover:border-primary/20 transition-all duration-300 mb-8 overflow-hidden"
+        >
+          <div
+            class="p-8 pb-6 border-b border-slate-100 flex flex-wrap items-center justify-between gap-4"
+          >
+            <div class="flex items-center gap-3">
+              <div
+                class="w-10 h-10 bg-primary/10 text-primary rounded-lg flex items-center justify-center"
+              >
+                <span class="material-symbols-outlined text-2xl">groups</span>
+              </div>
+              <h2 class="text-2xl font-bold text-slate-900">Students</h2>
+            </div>
+            <button
+              class="bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-6 rounded-xl flex items-center gap-2 transition-all shadow-sm text-sm"
+              onclick="openModal('studentModal')"
+            >
+              <span class="material-symbols-outlined text-lg">add</span> Add
+              student
+            </button>
+          </div>
+          <div class="p-8 pt-6">
+            <!-- search box with icon (tailwind styled) -->
+            <div class="relative mb-6">
+              <span
+                class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl"
+                >search</span
+              >
+              <input
+                type="text"
+                id="studentSearch"
+                placeholder="Search by name or matric number..."
+                onkeyup="searchStudents()"
+                class="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-slate-900 placeholder:text-slate-400"
+              />
+            </div>
+            <!-- table with cleaner style -->
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead
+                  class="text-slate-500 text-xs font-semibold uppercase tracking-wider border-b border-slate-200"
+                >
+                  <tr>
+                    <th class="text-left pb-3 pl-2">Name</th>
+                    <th class="text-left pb-3">Matric No</th>
+                    <th class="text-left pb-3">Department</th>
+                    <th class="text-left pb-3">Level</th>
+                    <th class="text-left pb-3 pr-2">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="studentsBody" class="text-slate-700">
+                  <tr id="studentsLoadingRow">
+                    <td colspan="5" class="text-center py-12">
+                      <div class="spinner"></div>
+                      <p class="mt-4 text-sm text-slate-500">
+                        Loading students...
+                      </p>
+                    </td>
+                  </tr>
+                  <!-- dynamic rows will be injected here, matching style -->
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
 
-        <div class="table-responsive">
-          <table class="table" id="studentsTable">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Matric No</th>
-                <th>Department</th>
-                <th>Level</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="studentsBody">
-              <tr id="studentsLoadingRow">
-                <td colspan="5" style="text-align: center; padding: 30px">
-                  <div class="spinner"></div>
-                  <p style="margin-top: 10px; color: #666">
-                    Loading students...
-                  </p>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <!-- Courses Card -->
+        <div
+          class="bg-white rounded-xl shadow-sm border border-slate-200 hover:shadow-xl hover:border-primary/20 transition-all duration-300 mb-8 overflow-hidden"
+        >
+          <div
+            class="p-8 pb-6 border-b border-slate-100 flex flex-wrap items-center justify-between gap-4"
+          >
+            <div class="flex items-center gap-3">
+              <div
+                class="w-10 h-10 bg-primary/10 text-primary rounded-lg flex items-center justify-center"
+              >
+                <span class="material-symbols-outlined text-2xl"
+                  >menu_book</span
+                >
+              </div>
+              <h2 class="text-2xl font-bold text-slate-900">Courses</h2>
+            </div>
+            <button
+              class="bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-6 rounded-xl flex items-center gap-2 transition-all shadow-sm text-sm"
+              onclick="openModal('courseModal')"
+            >
+              <span class="material-symbols-outlined text-lg">add</span> Add
+              course
+            </button>
+          </div>
+
+          <div class="p-8 pt-6">
+            <!-- Search box for courses (optional - you can add if needed) -->
+            <div class="relative mb-6">
+              <span
+                class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl"
+                >search</span
+              >
+              <input
+                type="text"
+                id="courseSearch"
+                placeholder="Search by course code or title..."
+                onkeyup="searchCourses()"
+                class="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-slate-900 placeholder:text-slate-400"
+              />
+            </div>
+
+            <!-- Courses table -->
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead
+                  class="text-slate-500 text-xs font-semibold uppercase tracking-wider border-b border-slate-200"
+                >
+                  <tr>
+                    <th class="text-left pb-3 pl-2">Course Code</th>
+                    <th class="text-left pb-3">Course Title</th>
+                    <th class="text-left pb-3">Credit Units</th>
+                    <th class="text-left pb-3 pr-2">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="coursesBody" class="text-slate-700">
+                  <!-- Loading row -->
+                  <tr id="coursesLoadingRow">
+                    <td colspan="4" class="text-center py-12">
+                      <div class="spinner"></div>
+                      <p class="mt-4 text-sm text-slate-500">
+                        Loading courses...
+                      </p>
+                    </td>
+                  </tr>
+                  <!-- Dynamic rows will be injected here -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- hint: original functionality kept intact (modals, js) -->
+      </div>
+    </main>
+
+    <!-- footer exactly like index (compact, with school icon) -->
+    <footer class="border-t border-slate-200 bg-white py-4">
+      <div class="max-w-[1200px] mx-auto px-6">
+        <div
+          class="flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-2 text-sm text-slate-500"
+        >
+          <div class="flex items-center gap-2">
+            <div
+              class="bg-primary text-white p-1 rounded flex items-center justify-center"
+            >
+              <span class="material-symbols-outlined text-base">school</span>
+            </div>
+            <span class="font-semibold text-slate-900">Academic Analytics</span>
+          </div>
+          <div class="text-slate-400">
+            © 2026 University Academic Systems. Built for Institutional
+            Excellence.
+          </div>
         </div>
       </div>
+    </footer>
 
-      <!-- Courses Section -->
-      <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">Manage Courses</h2>
-          <button class="btn btn-primary" onclick="openModal('courseModal')">
-            Add Course
-          </button>
-        </div>
-
-        <div class="table-responsive">
-          <table class="table" id="coursesTable">
-            <thead>
-              <tr>
-                <th>Course Code</th>
-                <th>Course Title</th>
-                <th>Credit Unit</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="coursesBody">
-              <tr id="coursesLoadingRow">
-                <td colspan="4" style="text-align: center; padding: 30px">
-                  <div class="spinner"></div>
-                  <p style="margin-top: 10px; color: #666">
-                    Loading courses...
-                  </p>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- Student Modal -->
-    <div id="studentModal" class="modal">
+    <!-- STUDENT MODAL (redesigned with tailwind classes, but keeping same ids/ structure) -->
+    <div id="studentModal" class="modal" style="display: none">
       <div class="modal-content">
         <span class="close" onclick="closeModal('studentModal')">&times;</span>
-        <h2 id="studentModalTitle">Add Student</h2>
+        <h2
+          id="studentModalTitle"
+          class="text-2xl font-bold text-slate-900 mb-6"
+        >
+          Add Student
+        </h2>
         <form id="studentForm" onsubmit="saveStudent(event)">
           <input type="hidden" id="studentId" />
-          <div class="form-group">
-            <label for="studentName">Name:</label>
+          <div class="mb-5">
+            <label
+              for="studentName"
+              class="block text-sm font-semibold text-slate-700 mb-2"
+              >Full name</label
+            >
             <input
               type="text"
               id="studentName"
-              placeholder="Enter student's full name"
+              placeholder="e.g., Alex Johnson"
               required
+              class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
             />
           </div>
-          <div class="form-group">
-            <label for="studentMatric">Matric No:</label>
+          <div class="mb-5">
+            <label
+              for="studentMatric"
+              class="block text-sm font-semibold text-slate-700 mb-2"
+              >Matric No</label
+            >
             <input
               type="text"
               id="studentMatric"
               placeholder="e.g., U1CS2409TR"
               required
+              class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
             />
           </div>
-          <div class="form-group">
-            <label for="studentDepartment">Department:</label>
+          <div class="mb-5">
+            <label
+              for="studentDepartment"
+              class="block text-sm font-semibold text-slate-700 mb-2"
+              >Department</label
+            >
             <input
               type="text"
               id="studentDepartment"
               placeholder="e.g., Computer Science"
               required
+              class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
             />
           </div>
-          <div class="form-group">
-            <label for="studentLevel">Level:</label>
-            <select id="studentLevel" required>
+          <div class="mb-6">
+            <label
+              for="studentLevel"
+              class="block text-sm font-semibold text-slate-700 mb-2"
+              >Level</label
+            >
+            <select
+              id="studentLevel"
+              required
+              class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
+            >
               <option value="">Select Level</option>
               <option value="100">100 Level</option>
               <option value="200">200 Level</option>
@@ -150,46 +402,76 @@
               <option value="500">500 Level</option>
             </select>
           </div>
-          <button type="submit" class="btn btn-primary">Save</button>
-          <button
-            type="button"
-            class="btn btn-secondary"
-            onclick="closeModal('studentModal')"
-          >
-            Cancel
-          </button>
+          <div class="flex gap-3">
+            <button
+              type="submit"
+              class="bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-6 rounded-xl transition flex-1"
+            >
+              Save
+            </button>
+            <button
+              type="button"
+              class="bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold py-3 px-6 rounded-xl transition flex-1"
+              onclick="closeModal('studentModal')"
+            >
+              Cancel
+            </button>
+          </div>
         </form>
       </div>
     </div>
 
-    <!-- Course Modal -->
-    <div id="courseModal" class="modal">
+    <!-- COURSE MODAL (same restyling) -->
+    <div id="courseModal" class="modal" style="display: none">
       <div class="modal-content">
         <span class="close" onclick="closeModal('courseModal')">&times;</span>
-        <h2 id="courseModalTitle">Add Course</h2>
+        <h2
+          id="courseModalTitle"
+          class="text-2xl font-bold text-slate-900 mb-6"
+        >
+          Add Course
+        </h2>
         <form id="courseForm" onsubmit="saveCourse(event)">
           <input type="hidden" id="courseId" />
-          <div class="form-group">
-            <label for="courseCode">Course Code:</label>
+          <div class="mb-5">
+            <label
+              for="courseCode"
+              class="block text-sm font-semibold text-slate-700 mb-2"
+              >Course Code</label
+            >
             <input
               type="text"
               id="courseCode"
               placeholder="e.g., CSC411"
               required
+              class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
             />
           </div>
-          <div class="form-group">
-            <label for="courseTitle">Course Title:</label>
+          <div class="mb-5">
+            <label
+              for="courseTitle"
+              class="block text-sm font-semibold text-slate-700 mb-2"
+              >Course Title</label
+            >
             <input
               type="text"
               id="courseTitle"
               placeholder="e.g., Software Engineering"
               required
+              class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
             />
           </div>
-          <div class="form-group">
-            <label for="creditUnit">Credit Unit:</label>
-            <select id="creditUnit" required>
+          <div class="mb-6">
+            <label
+              for="creditUnit"
+              class="block text-sm font-semibold text-slate-700 mb-2"
+              >Credit Unit</label
+            >
+            <select
+              id="creditUnit"
+              required
+              class="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
+            >
               <option value="">Select Credit Unit</option>
               <option value="1">1 Credit</option>
               <option value="2">2 Credits</option>
@@ -199,19 +481,53 @@
               <option value="6">6 Credits</option>
             </select>
           </div>
-          <button type="submit" class="btn btn-primary">Save</button>
-          <button
-            type="button"
-            class="btn btn-secondary"
-            onclick="closeModal('courseModal')"
-          >
-            Cancel
-          </button>
+          <div class="flex gap-3">
+            <button
+              type="submit"
+              class="bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-6 rounded-xl transition flex-1"
+            >
+              Save
+            </button>
+            <button
+              type="button"
+              class="bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold py-3 px-6 rounded-xl transition flex-1"
+              onclick="closeModal('courseModal')"
+            >
+              Cancel
+            </button>
+          </div>
         </form>
       </div>
     </div>
+
+    <!-- original scripts (preserve functionality) -->
     <script src="js/config.js"></script>
     <script src="js/main.js"></script>
     <script src="js/admin.js"></script>
+
+    <!-- small bridge to ensure modal functions are available (they exist in admin.js) 
+         and also to keep tailwind interactive classes for potential dynamic rows -->
+    <script>
+      // quick helper to keep modal opening/closing functions from original,
+      // but we also redefine them as fallback in case they are not loaded yet?
+      // They will be overwritten by admin.js definitions, but we ensure window functions exist.
+      window.openModal =
+        window.openModal ||
+        function (modalId) {
+          document.getElementById(modalId).style.display = "flex";
+        };
+      window.closeModal =
+        window.closeModal ||
+        function (modalId) {
+          document.getElementById(modalId).style.display = "none";
+        };
+      // searchStudents is defined in admin.js, keep it.
+      // optional: close modal when clicking outside
+      window.onclick = function (event) {
+        if (event.target.classList.contains("modal")) {
+          event.target.style.display = "none";
+        }
+      };
+    </script>
   </body>
 </html>

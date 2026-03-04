@@ -67,30 +67,46 @@ async function loadAllData() {
     }
 }
 
-// Show loading indicators
+// Show loading indicators with Tailwind styling (update the courses section)
 function showLoading(type) {
     if (type === "students") {
-        document.getElementById("studentsBody").innerHTML = `
-            <tr>
-                <td colspan="5" style="text-align: center; padding: 30px;">
-                    <div class="spinner"></div>
-                    <p style="margin-top: 10px; color: #666;">Loading students...</p>
-                </td>
-            </tr>
-        `;
+        const tbody = document.getElementById("studentsBody");
+        if (tbody) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="text-center py-16">
+                        <div class="flex flex-col items-center justify-center gap-4">
+                            <div class="spinner"></div>
+                            <div class="space-y-2">
+                                <p class="text-slate-600 font-medium">Loading students...</p>
+                                <p class="text-sm text-slate-400">Please wait</p>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }
     } else if (type === "courses") {
-        document.getElementById("coursesBody").innerHTML = `
-            <tr>
-                <td colspan="4" style="text-align: center; padding: 30px;">
-                    <div class="spinner"></div>
-                    <p style="margin-top: 10px; color: #666;">Loading courses...</p>
-                </td>
-            </tr>
-        `;
+        const tbody = document.getElementById("coursesBody");
+        if (tbody) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="4" class="text-center py-16">
+                        <div class="flex flex-col items-center justify-center gap-4">
+                            <div class="spinner"></div>
+                            <div class="space-y-2">
+                                <p class="text-slate-600 font-medium">Loading courses...</p>
+                                <p class="text-sm text-slate-400">Please wait</p>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }
     }
 }
 
-// Display students in table
+// Display students in table with Tailwind styling
 function displayStudents() {
     console.log("👥 Displaying students...");
     const tbody = document.getElementById("studentsBody");
@@ -103,9 +119,12 @@ function displayStudents() {
     if (!students || students.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="5" style="text-align: center; padding: 30px; color: #666;">
-                    <p style="font-size: 16px; margin-bottom: 10px;">📋 No students found</p>
-                    <p style="font-size: 14px;">Click "Add Student" to add your first student.</p>
+                <td colspan="5" class="text-center py-16">
+                    <div class="flex flex-col items-center justify-center gap-3">
+                        <span class="material-symbols-outlined text-5xl text-slate-300">group_off</span>
+                        <p class="text-slate-500 font-medium">No students found</p>
+                        <p class="text-sm text-slate-400">Click "Add student" to add your first student.</p>
+                    </div>
                 </td>
             </tr>
         `;
@@ -113,16 +132,47 @@ function displayStudents() {
     }
 
     let html = "";
-    students.forEach((student) => {
+    students.forEach((student, index) => {
+        // Add subtle alternating background for better readability
+        const rowBg = index % 2 === 0 ? 'bg-white' : 'bg-slate-50/50';
+        
         html += `
-            <tr data-student-id="${student.id}">
-                <td><strong>${escapeHtml(student.name)}</strong></td>
-                <td>${escapeHtml(student.matric_no)}</td>
-                <td>${escapeHtml(student.department)}</td>
-                <td>${student.level}</td>
-                <td>
-                    <button class="btn btn-warning btn-sm" onclick="editStudent('${student.id}')">Edit</button>
-                    <button class="btn btn-danger btn-sm" onclick="deleteStudent('${student.id}')">Delete</button>
+            <tr data-student-id="${student.id}" class="${rowBg} hover:bg-slate-100/80 transition-colors duration-150 group">
+                <td class="py-4 pl-2 font-medium text-slate-900">${escapeHtml(student.name)}</td>
+                <td class="py-4">
+                    <span class="font-mono text-xs bg-slate-100 px-2 py-1 rounded-md text-slate-700">
+                        ${escapeHtml(student.matric_no)}
+                    </span>
+                </td>
+                <td class="py-4 text-slate-600">${escapeHtml(student.department)}</td>
+                <td class="py-4">
+                    <span class="px-2.5 py-1 rounded-full text-xs font-medium 
+                        ${student.level === '100' ? 'bg-green-100 text-green-700' : 
+                          student.level === '200' ? 'bg-blue-100 text-blue-700' :
+                          student.level === '300' ? 'bg-purple-100 text-purple-700' :
+                          student.level === '400' ? 'bg-orange-100 text-orange-700' :
+                          student.level === '500' ? 'bg-red-100 text-red-700' :
+                          'bg-slate-100 text-slate-700'}">
+                        ${student.level}
+                    </span>
+                </td>
+                <td class="py-4 pr-2">
+                    <div class="flex items-center gap-2 opacity-80 group-hover:opacity-100 transition-opacity">
+                        <button 
+                            onclick="editStudent('${student.id}')" 
+                            class="p-1.5 hover:bg-primary/10 rounded-lg transition-colors text-slate-500 hover:text-primary"
+                            title="Edit student"
+                        >
+                            <span class="material-symbols-outlined text-lg">edit</span>
+                        </button>
+                        <button 
+                            onclick="deleteStudent('${student.id}')" 
+                            class="p-1.5 hover:bg-red-50 rounded-lg transition-colors text-slate-500 hover:text-red-600"
+                            title="Delete student"
+                        >
+                            <span class="material-symbols-outlined text-lg">delete</span>
+                        </button>
+                    </div>
                 </td>
             </tr>
         `;
@@ -132,7 +182,7 @@ function displayStudents() {
     console.log(`✅ Displayed ${students.length} students`);
 }
 
-// Display courses in table
+// Display courses in table with Tailwind styling
 function displayCourses() {
     console.log("📚 Displaying courses...");
     const tbody = document.getElementById("coursesBody");
@@ -145,9 +195,12 @@ function displayCourses() {
     if (!courses || courses.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="4" style="text-align: center; padding: 30px; color: #666;">
-                    <p style="font-size: 16px; margin-bottom: 10px;">📚 No courses found</p>
-                    <p style="font-size: 14px;">Click "Add Course" to add your first course.</p>
+                <td colspan="4" class="text-center py-16">
+                    <div class="flex flex-col items-center justify-center gap-3">
+                        <span class="material-symbols-outlined text-5xl text-slate-300">book</span>
+                        <p class="text-slate-500 font-medium">No courses found</p>
+                        <p class="text-sm text-slate-400">Click "Add Course" to add your first course.</p>
+                    </div>
                 </td>
             </tr>
         `;
@@ -155,15 +208,40 @@ function displayCourses() {
     }
 
     let html = "";
-    courses.forEach((course) => {
+    courses.forEach((course, index) => {
+        // Add subtle alternating background for better readability
+        const rowBg = index % 2 === 0 ? 'bg-white' : 'bg-slate-50/50';
+        
         html += `
-            <tr data-course-id="${course.id}">
-                <td><strong>${escapeHtml(course.course_code)}</strong></td>
-                <td>${escapeHtml(course.course_title)}</td>
-                <td>${course.credit_unit}</td>
-                <td>
-                    <button class="btn btn-warning btn-sm" onclick="editCourse('${course.id}')">Edit</button>
-                    <button class="btn btn-danger btn-sm" onclick="deleteCourse('${course.id}')">Delete</button>
+            <tr data-course-id="${course.id}" class="${rowBg} hover:bg-slate-100/80 transition-colors duration-150 group">
+                <td class="py-4 pl-2">
+                    <span class="font-mono font-semibold text-primary bg-primary/5 px-2.5 py-1.5 rounded-md text-sm">
+                        ${escapeHtml(course.course_code)}
+                    </span>
+                </td>
+                <td class="py-4 text-slate-700 font-medium">${escapeHtml(course.course_title)}</td>
+                <td class="py-4">
+                    <span class="px-3 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-700">
+                        ${course.credit_unit} ${course.credit_unit === 1 ? 'Unit' : 'Units'}
+                    </span>
+                </td>
+                <td class="py-4 pr-2">
+                    <div class="flex items-center gap-2 opacity-80 group-hover:opacity-100 transition-opacity">
+                        <button 
+                            onclick="editCourse('${course.id}')" 
+                            class="p-1.5 hover:bg-primary/10 rounded-lg transition-colors text-slate-500 hover:text-primary"
+                            title="Edit course"
+                        >
+                            <span class="material-symbols-outlined text-lg">edit</span>
+                        </button>
+                        <button 
+                            onclick="deleteCourse('${course.id}')" 
+                            class="p-1.5 hover:bg-red-50 rounded-lg transition-colors text-slate-500 hover:text-red-600"
+                            title="Delete course"
+                        >
+                            <span class="material-symbols-outlined text-lg">delete</span>
+                        </button>
+                    </div>
                 </td>
             </tr>
         `;
@@ -432,6 +510,56 @@ function searchStudents() {
         noResultsRow.innerHTML = `
             <td colspan="5" style="text-align: center; padding: 20px; color: #666;">
                 <p>🔍 No students matching "${searchText}"</p>
+            </td>
+        `;
+        tbody.appendChild(noResultsRow);
+    }
+}
+
+// Search functionality for courses with Tailwind styling
+function searchCourses() {
+    const searchText = document.getElementById("courseSearch").value.toLowerCase().trim();
+    const tbody = document.getElementById("coursesBody");
+    const rows = tbody.getElementsByTagName("tr");
+
+    if (!rows) return;
+
+    let visibleCount = 0;
+
+    // Remove any existing "no results" message
+    const existingNoResults = document.getElementById("noCourseSearchResults");
+    if (existingNoResults) {
+        existingNoResults.remove();
+    }
+
+    for (let row of rows) {
+        // Skip the loading row if it exists
+        if (row.id === "coursesLoadingRow" || row.id === "noCourseSearchResults") continue;
+        
+        if (row.cells && row.cells.length >= 2) {
+            const courseCode = row.cells[0].textContent.toLowerCase();
+            const courseTitle = row.cells[1].textContent.toLowerCase();
+
+            if (courseCode.includes(searchText) || courseTitle.includes(searchText)) {
+                row.style.display = "";
+                visibleCount++;
+            } else {
+                row.style.display = "none";
+            }
+        }
+    }
+
+    // Show "no results" message if needed
+    if (visibleCount === 0 && courses.length > 0 && searchText !== "") {
+        const noResultsRow = document.createElement("tr");
+        noResultsRow.id = "noCourseSearchResults";
+        noResultsRow.innerHTML = `
+            <td colspan="4" class="text-center py-16">
+                <div class="flex flex-col items-center justify-center gap-3">
+                    <span class="material-symbols-outlined text-5xl text-slate-300">search_off</span>
+                    <p class="text-slate-500 font-medium">No matching courses</p>
+                    <p class="text-sm text-slate-400">Try adjusting your search terms</p>
+                </div>
             </td>
         `;
         tbody.appendChild(noResultsRow);

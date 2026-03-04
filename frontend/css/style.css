@@ -694,3 +694,303 @@ body {
         border: 1px solid #ddd;
     }
 }
+
+/* Add this to your existing style or create a new stylesheet */
+
+/* Table container for better responsiveness */
+.table-responsive {
+    overflow-x: auto;
+    margin: 20px 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Main table styling */
+.students-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: white;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Table header styling */
+.students-table thead {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.students-table th {
+    padding: 15px 20px;
+    font-weight: 600;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-align: left;
+    white-space: nowrap;
+}
+
+/* Table cell styling */
+.students-table td {
+    padding: 15px 20px;
+    font-size: 14px;
+    color: #333;
+    border-bottom: 1px solid #eef2f6;
+    vertical-align: middle;
+}
+
+/* Row hover effect */
+.students-table tbody tr:hover {
+    background-color: #f8f9fa;
+    transition: background-color 0.3s ease;
+}
+
+/* Striped rows for better readability */
+.students-table tbody tr:nth-child(even) {
+    background-color: #fafbfc;
+}
+
+/* Name column styling */
+.students-table td:first-child {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* Matric number styling */
+.students-table td:nth-child(2) {
+    font-family: 'Courier New', monospace;
+    color: #e83e8c;
+    font-weight: 500;
+}
+
+/* Department styling */
+.students-table td:nth-child(3) {
+    color: #495057;
+}
+
+/* Level styling */
+.students-table td:nth-child(4) {
+    font-weight: 600;
+    color: #28a745;
+}
+
+/* Actions column styling */
+.students-table td:last-child {
+    white-space: nowrap;
+    min-width: 120px;
+}
+
+/* Button styling within table */
+.students-table .btn {
+    padding: 6px 12px;
+    margin: 0 3px;
+    font-size: 12px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.students-table .btn-warning {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.students-table .btn-warning:hover {
+    background-color: #e0a800;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(255, 193, 7, 0.3);
+}
+
+.students-table .btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.students-table .btn-danger:hover {
+    background-color: #c82333;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
+}
+
+/* Search bar styling */
+.search-container {
+    margin: 20px 0;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.search-box {
+    flex: 1;
+    min-width: 300px;
+    position: relative;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 12px 20px 12px 45px;
+    border: 2px solid #eef2f6;
+    border-radius: 25px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    background: white url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%23666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>') no-repeat 15px center;
+    background-size: 16px;
+}
+
+.search-box input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Add student button styling */
+.add-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 25px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.add-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.add-button:active {
+    transform: translateY(0);
+}
+
+/* Empty state styling */
+.empty-state {
+    text-align: center;
+    padding: 50px !important;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.empty-state p {
+    font-size: 18px;
+    color: #4a5568;
+    margin: 10px 0;
+}
+
+.empty-state p:first-child {
+    font-size: 48px;
+    margin-bottom: 20px;
+}
+
+/* No search results styling */
+#noSearchResults td {
+    padding: 30px;
+    background: #fff3cd;
+    color: #856404;
+    text-align: center;
+    font-size: 16px;
+}
+
+#noSearchResults td p {
+    margin: 0;
+    font-weight: 500;
+}
+
+/* Debug section styling */
+.debug-section {
+    margin-top: 40px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #eef2f6;
+}
+
+.debug-section h3 {
+    margin-bottom: 15px;
+    color: #333;
+    font-size: 18px;
+}
+
+.debug-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.debug-btn {
+    padding: 8px 16px;
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background-color 0.3s ease;
+}
+
+.debug-btn:hover {
+    background: #5a6268;
+}
+
+.debug-output {
+    margin-top: 15px;
+    padding: 15px;
+    background: white;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+    max-height: 400px;
+    overflow-y: auto;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .students-table th,
+    .students-table td {
+        padding: 10px 12px;
+        font-size: 12px;
+    }
+    
+    .search-container {
+        flex-direction: column;
+    }
+    
+    .search-box {
+        width: 100%;
+    }
+    
+    .add-button {
+        width: 100%;
+    }
+    
+    .students-table .btn {
+        padding: 4px 8px;
+        font-size: 11px;
+    }
+}
+
+/* Animation for new rows */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.students-table tbody tr {
+    animation: fadeIn 0.3s ease;
+}
