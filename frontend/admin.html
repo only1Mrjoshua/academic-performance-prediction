@@ -103,7 +103,7 @@
         const role = localStorage.getItem("userRole");
 
         if (!token) {
-          window.location.href = "/login.html";
+          window.location.href = "login.html";
           return;
         }
 
@@ -112,7 +112,7 @@
           window.location.pathname.includes("admin.html") &&
           role !== "admin"
         ) {
-          window.location.href = "/unauthorized.html";
+          window.location.href = "unauthorized.html";
           return;
         }
       })();
