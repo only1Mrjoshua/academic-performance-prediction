@@ -1,761 +1,700 @@
-// Global variables
 let students = [];
 let courses = [];
 
-// Optional: Log which URL is being used (helpful for debugging)
-console.log('Admin page - Using API URL:', API_BASE);
+console.log("Admin page - Using API URL:", API_BASE);
 
-// Add spinner animation and toast styles
-const style = document.createElement("style");
-style.textContent = `
+// ---------- Shared styles injected once ----------
+(function injectAdminEnhancements() {
+  if (document.getElementById("admin-premium-ui-styles")) return;
+
+  const style = document.createElement("style");
+  style.id = "admin-premium-ui-styles";
+  style.textContent = `
     @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+      to { transform: rotate(360deg); }
     }
-    @keyframes slideIn {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-    }
-    @keyframes slideOut {
-        from { transform: translateX(0); opacity: 1; }
-        to { transform: translateX(100%); opacity: 0; }
-    }
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-    .spinner {
-        display: inline-block;
-        width: 30px;
-        height: 30px;
-        border: 3px solid #f3f3f3;
-        border-top: 3px solid #135bec;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-    }
-`;
-document.head.appendChild(style);
 
-// Toast notification system
-function showToast(message, type = 'success', duration = 4000) {
-    // Create toast container if it doesn't exist
-    let container = document.getElementById('toast-container');
-    if (!container) {
-        container = document.createElement('div');
-        container.id = 'toast-container';
-        container.className = 'fixed bottom-4 right-4 z-[100] flex flex-col gap-2';
-        document.body.appendChild(container);
+    .admin-spinner {
+      display: inline-block;
+      width: 30px;
+      height: 30px;
+      border: 3px solid rgba(19, 91, 236, 0.12);
+      border-top-color: #135bec;
+      border-radius: 9999px;
+      animation: spin 0.8s linear infinite;
     }
-    
-    const toast = document.createElement('div');
-    
-    // Define styles based on type
-    const bgColor = {
-        success: 'bg-green-50 border-green-200 text-green-800',
-        error: 'bg-red-50 border-red-200 text-red-800',
-        warning: 'bg-amber-50 border-amber-200 text-amber-800',
-        info: 'bg-blue-50 border-blue-200 text-blue-800'
-    }[type] || 'bg-slate-50 border-slate-200 text-slate-800';
-    
-    const iconColor = {
-        success: 'text-green-500',
-        error: 'text-red-500',
-        warning: 'text-amber-500',
-        info: 'text-blue-500'
-    }[type] || 'text-slate-500';
-    
-    const icon = {
-        success: 'check_circle',
-        error: 'error',
-        warning: 'warning',
-        info: 'info'
-    }[type] || 'notifications';
-    
-    toast.className = `flex items-center gap-3 px-4 py-3 rounded-xl border ${bgColor} shadow-lg backdrop-blur-sm min-w-[300px] max-w-md`;
-    toast.style.animation = 'slideIn 0.3s ease';
-    
-    toast.innerHTML = `
-        <span class="material-symbols-outlined ${iconColor}">${icon}</span>
-        <span class="flex-1 text-sm font-medium">${message}</span>
-        <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-slate-600">
-            <span class="material-symbols-outlined text-lg">close</span>
-        </button>
+
+    #toast-container > div {
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+  `;
+  document.head.appendChild(style);
+})();
+
+// ---------- Helpers ----------
+function escapeHtml(unsafe) {
+  if (unsafe === null || unsafe === undefined) return "";
+  return String(unsafe)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function levelBadgeClass(level) {
+  const value = String(level);
+  if (value === "100") return "bg-emerald-50 text-emerald-700 border border-emerald-100";
+  if (value === "200") return "bg-blue-50 text-blue-700 border border-blue-100";
+  if (value === "300") return "bg-violet-50 text-violet-700 border border-violet-100";
+  if (value === "400") return "bg-amber-50 text-amber-700 border border-amber-100";
+  if (value === "500") return "bg-red-50 text-red-700 border border-red-100";
+  return "bg-slate-100 text-slate-700 border border-slate-200";
+}
+
+function actionButtonSvg(type) {
+  if (type === "edit") {
+    return `
+      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 20h9"/>
+        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 3.5a2.1 2.1 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"/>
+      </svg>
     `;
-    
-    container.appendChild(toast);
-    
-    // Auto remove after duration
-    setTimeout(() => {
-        if (toast.parentElement) {
-            toast.style.animation = 'slideOut 0.3s ease forwards';
-            setTimeout(() => toast.remove(), 300);
-        }
-    }, duration);
+  }
+
+  return `
+    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18"/>
+      <path stroke-linecap="round" stroke-linejoin="round" d="M8 6V4h8v2"/>
+      <path stroke-linecap="round" stroke-linejoin="round" d="M19 6l-1 14H6L5 6"/>
+      <path stroke-linecap="round" stroke-linejoin="round" d="M10 11v6M14 11v6"/>
+    </svg>
+  `;
 }
 
-// Replace showAlert with toast
-function showAlert(message, type = 'success') {
-    // Map old types to new toast types
-    const toastType = {
-        'success': 'success',
-        'danger': 'error',
-        'warning': 'warning',
-        'info': 'info'
-    }[type] || 'info';
-    
-    showToast(message, toastType);
+function emptyStateSvg(kind = "generic") {
+  if (kind === "students") {
+    return `
+      <svg class="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372A3.375 3.375 0 0 0 21 16.125a3.375 3.375 0 0 0-2.25-3.176M15 19.128v-.003c0-1.113-.285-2.16-.786-3.072M15 4.872A9.353 9.353 0 0 0 12 4.5c-1.049 0-2.06.173-3 .49m6 14.138A9.353 9.353 0 0 1 12 19.5c-1.049 0-2.06-.173-3-.49m0 0A9.355 9.355 0 0 1 6.75 18.375a3.375 3.375 0 0 1-2.25-3.176 3.375 3.375 0 0 1 2.25-3.176m2.25 7.0a9.355 9.355 0 0 1-.786-3.072m0-7.902A9.355 9.355 0 0 0 9 5.625a3.375 3.375 0 0 0-2.25 3.176 3.375 3.375 0 0 0 2.25 3.176m0-7.0A9.353 9.353 0 0 1 12 4.5"/>
+      </svg>
+    `;
+  }
+
+  if (kind === "courses") {
+    return `
+      <svg class="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5 5.754 5 4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18c1.746 0 3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+      </svg>
+    `;
+  }
+
+  return `
+    <svg class="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+      <circle cx="11" cy="11" r="7"></circle>
+      <path stroke-linecap="round" stroke-linejoin="round" d="m20 20-3.5-3.5"></path>
+    </svg>
+  `;
 }
 
-// Custom confirm dialog with styled modal
+function makeEmptyRow(colspan, title, subtitle, kind = "generic") {
+  return `
+    <tr>
+      <td colspan="${colspan}" class="py-16 text-center">
+        <div class="flex flex-col items-center justify-center gap-4 text-slate-400">
+          <div class="w-16 h-16 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center">
+            ${emptyStateSvg(kind)}
+          </div>
+          <div class="space-y-1">
+            <p class="text-slate-600 font-semibold">${title}</p>
+            <p class="text-sm text-slate-400">${subtitle}</p>
+          </div>
+        </div>
+      </td>
+    </tr>
+  `;
+}
+
+function makeLoadingRow(colspan, label) {
+  return `
+    <tr>
+      <td colspan="${colspan}" class="py-16 text-center">
+        <div class="flex flex-col items-center justify-center gap-4">
+          <div class="admin-spinner"></div>
+          <div class="space-y-1">
+            <p class="text-slate-700 font-semibold">${label}</p>
+            <p class="text-sm text-slate-400">Please wait a moment</p>
+          </div>
+        </div>
+      </td>
+    </tr>
+  `;
+}
+
+// ---------- Premium confirm ----------
 async function showConfirm(message) {
-    return new Promise((resolve) => {
-        // Create confirm modal container
-        const modalOverlay = document.createElement('div');
-        modalOverlay.className = 'fixed inset-0 bg-black/40 backdrop-blur-sm z-[200] flex items-center justify-center';
-        modalOverlay.style.animation = 'fadeIn 0.2s ease';
-        
-        const modal = document.createElement('div');
-        modal.className = 'bg-white rounded-2xl max-w-[400px] w-full mx-4 p-6 shadow-2xl border border-primary/15';
-        modal.innerHTML = `
-            <div class="flex items-start gap-4 mb-6">
-                <div class="w-10 h-10 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center">
-                    <span class="material-symbols-outlined text-2xl">help</span>
-                </div>
-                <div class="flex-1">
-                    <h3 class="text-lg font-bold text-slate-900 mb-2">Confirm Action</h3>
-                    <p class="text-slate-600 text-sm">${message}</p>
-                </div>
-            </div>
-            <div class="flex flex-col sm:flex-row gap-3">
-                <button class="flex-1 bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-4 rounded-xl transition-all text-sm" id="confirm-yes">Yes, proceed</button>
-                <button class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold py-3 px-4 rounded-xl transition-all text-sm" id="confirm-no">Cancel</button>
-            </div>
-        `;
-        
-        modalOverlay.appendChild(modal);
-        document.body.appendChild(modalOverlay);
-        
-        // Handle clicks
-        document.getElementById('confirm-yes').addEventListener('click', () => {
-            document.body.removeChild(modalOverlay);
-            resolve(true);
-        });
-        
-        document.getElementById('confirm-no').addEventListener('click', () => {
-            document.body.removeChild(modalOverlay);
-            resolve(false);
-        });
-        
-        // Close on overlay click
-        modalOverlay.addEventListener('click', (e) => {
-            if (e.target === modalOverlay) {
-                document.body.removeChild(modalOverlay);
-                resolve(false);
-            }
-        });
+  return new Promise((resolve) => {
+    const overlay = document.createElement("div");
+    overlay.className = "fixed inset-0 z-[220] bg-slate-950/40 backdrop-blur-md flex items-center justify-center px-4";
+
+    const modal = document.createElement("div");
+    modal.className = "w-full max-w-[460px] rounded-[28px] border border-slate-200 bg-white p-6 md:p-7 shadow-2xl";
+
+    modal.innerHTML = `
+      <div class="flex items-start gap-4 mb-6">
+        <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.72 3h16.92a2 2 0 0 0 1.72-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/>
+          </svg>
+        </div>
+        <div class="flex-1">
+          <p class="text-xs uppercase tracking-[0.18em] font-bold text-slate-400">Confirm action</p>
+          <h3 class="mt-2 text-2xl font-black tracking-tight text-slate-950">Proceed?</h3>
+          <p class="mt-3 text-sm leading-7 text-slate-600">${escapeHtml(message)}</p>
+        </div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-3">
+        <button id="confirm-yes" class="inline-flex flex-1 items-center justify-center rounded-2xl bg-primary px-5 py-4 text-sm font-semibold text-white shadow-lg shadow-blue-100 hover:bg-primary-dark transition-all">
+          Yes, proceed
+        </button>
+        <button id="confirm-no" class="inline-flex flex-1 items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 py-4 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all">
+          Cancel
+        </button>
+      </div>
+    `;
+
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+    document.body.style.overflow = "hidden";
+
+    function cleanup(result) {
+      document.body.style.overflow = "";
+      overlay.remove();
+      resolve(result);
+    }
+
+    modal.querySelector("#confirm-yes").addEventListener("click", () => cleanup(true));
+    modal.querySelector("#confirm-no").addEventListener("click", () => cleanup(false));
+
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) cleanup(false);
     });
+  });
 }
 
-// Load data on page load
+// ---------- Load ----------
 document.addEventListener("DOMContentLoaded", function () {
-    console.log("👨‍💼 Admin page loaded");
-    
-    // Create toast container
-    const toastContainer = document.createElement('div');
-    toastContainer.id = 'toast-container';
-    toastContainer.className = 'fixed bottom-4 right-4 z-[100] flex flex-col gap-2';
-    document.body.appendChild(toastContainer);
-    
-    loadAllData();
+  console.log("Admin page loaded");
+  loadAllData();
 });
 
-// Load all data
 async function loadAllData() {
-    try {
-        // Show loading states
-        showLoading("students");
-        showLoading("courses");
+  try {
+    showLoading("students");
+    showLoading("courses");
 
-        // Load both students and courses in parallel
-        const [studentsData, coursesData] = await Promise.all([
-            apiCall("/admin/students/").catch((err) => {
-                console.error("Failed to load students:", err);
-                return [];
-            }),
-            apiCall("/admin/courses/").catch((err) => {
-                console.error("Failed to load courses:", err);
-                return [];
-            }),
-        ]);
+    const [studentsData, coursesData] = await Promise.all([
+      apiCall("/admin/students/").catch((err) => {
+        console.error("Failed to load students:", err);
+        return [];
+      }),
+      apiCall("/admin/courses/").catch((err) => {
+        console.error("Failed to load courses:", err);
+        return [];
+      }),
+    ]);
 
-        // Update global variables
-        students = studentsData || [];
-        courses = coursesData || [];
+    students = Array.isArray(studentsData) ? studentsData : [];
+    courses = Array.isArray(coursesData) ? coursesData : [];
 
-        console.log("📊 Data loaded:", {
-            students: students.length,
-            courses: courses.length,
-        });
+    console.log("Data loaded:", {
+      students: students.length,
+      courses: courses.length,
+    });
 
-        // Display the data
-        displayStudents();
-        displayCourses();
-    } catch (error) {
-        console.error("❌ Error loading data:", error);
-        showToast("Failed to load data. Please refresh the page.", "error");
-    }
+    displayStudents();
+    displayCourses();
+  } catch (error) {
+    console.error("Error loading data:", error);
+    showToast("Failed to load data. Please refresh the page.", "error");
+  }
 }
 
-// Show loading indicators with Tailwind styling (update the courses section)
 function showLoading(type) {
-    if (type === "students") {
-        const tbody = document.getElementById("studentsBody");
-        if (tbody) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="5" class="text-center py-16">
-                        <div class="flex flex-col items-center justify-center gap-4">
-                            <div class="spinner"></div>
-                            <div class="space-y-2">
-                                <p class="text-slate-600 font-medium">Loading students...</p>
-                                <p class="text-sm text-slate-400">Please wait</p>
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-            `;
-        }
-    } else if (type === "courses") {
-        const tbody = document.getElementById("coursesBody");
-        if (tbody) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="4" class="text-center py-16">
-                        <div class="flex flex-col items-center justify-center gap-4">
-                            <div class="spinner"></div>
-                            <div class="space-y-2">
-                                <p class="text-slate-600 font-medium">Loading courses...</p>
-                                <p class="text-sm text-slate-400">Please wait</p>
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-            `;
-        }
-    }
-}
-
-// Display students in table with Tailwind styling
-function displayStudents() {
-    console.log("👥 Displaying students...");
+  if (type === "students") {
     const tbody = document.getElementById("studentsBody");
-
-    if (!tbody) {
-        console.error("❌ studentsBody element not found!");
-        return;
-    }
-
-    if (!students || students.length === 0) {
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="5" class="text-center py-16">
-                    <div class="flex flex-col items-center justify-center gap-3">
-                        <span class="material-symbols-outlined text-5xl text-slate-300">group_off</span>
-                        <p class="text-slate-500 font-medium">No students found</p>
-                        <p class="text-sm text-slate-400">Click "Add student" to add your first student.</p>
-                    </div>
-                </td>
-            </tr>
-        `;
-        return;
-    }
-
-    let html = "";
-    students.forEach((student, index) => {
-        // Add subtle alternating background for better readability
-        const rowBg = index % 2 === 0 ? 'bg-white' : 'bg-slate-50/50';
-        
-        html += `
-            <tr data-student-id="${student.id}" class="${rowBg} hover:bg-slate-100/80 transition-colors duration-150 group">
-                <td class="py-4 pl-2 font-medium text-slate-900">${escapeHtml(student.name)}</td>
-                <td class="py-4">
-                    <span class="font-mono text-xs bg-slate-100 px-2 py-1 rounded-md text-slate-700">
-                        ${escapeHtml(student.matric_no)}
-                    </span>
-                </td>
-                <td class="py-4 text-slate-600">${escapeHtml(student.department)}</td>
-                <td class="py-4">
-                    <span class="px-2.5 py-1 rounded-full text-xs font-medium 
-                        ${student.level === '100' ? 'bg-green-100 text-green-700' : 
-                          student.level === '200' ? 'bg-blue-100 text-blue-700' :
-                          student.level === '300' ? 'bg-purple-100 text-purple-700' :
-                          student.level === '400' ? 'bg-orange-100 text-orange-700' :
-                          student.level === '500' ? 'bg-red-100 text-red-700' :
-                          'bg-slate-100 text-slate-700'}">
-                        ${student.level}
-                    </span>
-                </td>
-                <td class="py-4 pr-2">
-                    <div class="flex items-center gap-2 opacity-80 group-hover:opacity-100 transition-opacity">
-                        <button 
-                            onclick="editStudent('${student.id}')" 
-                            class="p-1.5 hover:bg-primary/10 rounded-lg transition-colors text-slate-500 hover:text-primary"
-                            title="Edit student"
-                        >
-                            <span class="material-symbols-outlined text-lg">edit</span>
-                        </button>
-                        <button 
-                            onclick="deleteStudent('${student.id}')" 
-                            class="p-1.5 hover:bg-red-50 rounded-lg transition-colors text-slate-500 hover:text-red-600"
-                            title="Delete student"
-                        >
-                            <span class="material-symbols-outlined text-lg">delete</span>
-                        </button>
-                    </div>
-                </td>
-            </tr>
-        `;
-    });
-
-    tbody.innerHTML = html;
-    console.log(`✅ Displayed ${students.length} students`);
-}
-
-// Display courses in table with Tailwind styling
-function displayCourses() {
-    console.log("📚 Displaying courses...");
+    if (tbody) tbody.innerHTML = makeLoadingRow(5, "Loading students...");
+  } else if (type === "courses") {
     const tbody = document.getElementById("coursesBody");
-
-    if (!tbody) {
-        console.error("❌ coursesBody element not found!");
-        return;
-    }
-
-    if (!courses || courses.length === 0) {
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="4" class="text-center py-16">
-                    <div class="flex flex-col items-center justify-center gap-3">
-                        <span class="material-symbols-outlined text-5xl text-slate-300">book</span>
-                        <p class="text-slate-500 font-medium">No courses found</p>
-                        <p class="text-sm text-slate-400">Click "Add Course" to add your first course.</p>
-                    </div>
-                </td>
-            </tr>
-        `;
-        return;
-    }
-
-    let html = "";
-    courses.forEach((course, index) => {
-        // Add subtle alternating background for better readability
-        const rowBg = index % 2 === 0 ? 'bg-white' : 'bg-slate-50/50';
-        
-        html += `
-            <tr data-course-id="${course.id}" class="${rowBg} hover:bg-slate-100/80 transition-colors duration-150 group">
-                <td class="py-4 pl-2">
-                    <span class="font-mono font-semibold text-primary bg-primary/5 px-2.5 py-1.5 rounded-md text-sm">
-                        ${escapeHtml(course.course_code)}
-                    </span>
-                </td>
-                <td class="py-4 text-slate-700 font-medium">${escapeHtml(course.course_title)}</td>
-                <td class="py-4">
-                    <span class="px-3 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-700">
-                        ${course.credit_unit} ${course.credit_unit === 1 ? 'Unit' : 'Units'}
-                    </span>
-                </td>
-                <td class="py-4 pr-2">
-                    <div class="flex items-center gap-2 opacity-80 group-hover:opacity-100 transition-opacity">
-                        <button 
-                            onclick="editCourse('${course.id}')" 
-                            class="p-1.5 hover:bg-primary/10 rounded-lg transition-colors text-slate-500 hover:text-primary"
-                            title="Edit course"
-                        >
-                            <span class="material-symbols-outlined text-lg">edit</span>
-                        </button>
-                        <button 
-                            onclick="deleteCourse('${course.id}')" 
-                            class="p-1.5 hover:bg-red-50 rounded-lg transition-colors text-slate-500 hover:text-red-600"
-                            title="Delete course"
-                        >
-                            <span class="material-symbols-outlined text-lg">delete</span>
-                        </button>
-                    </div>
-                </td>
-            </tr>
-        `;
-    });
-
-    tbody.innerHTML = html;
-    console.log(`✅ Displayed ${courses.length} courses`);
+    if (tbody) tbody.innerHTML = makeLoadingRow(4, "Loading courses...");
+  }
 }
 
-// Escape HTML to prevent XSS attacks
-function escapeHtml(unsafe) {
-    if (!unsafe) return '';
-    return unsafe
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+// ---------- Render students ----------
+function displayStudents() {
+  const tbody = document.getElementById("studentsBody");
+  if (!tbody) return;
+
+  if (!students.length) {
+    tbody.innerHTML = makeEmptyRow(
+      5,
+      "No students found",
+      'Click "Add Student" to create your first student record.',
+      "students",
+    );
+    return;
+  }
+
+  let html = "";
+
+  students.forEach((student) => {
+    html += `
+      <tr data-student-id="${escapeHtml(student.id)}" class="hover:bg-slate-50 transition-colors">
+        <td class="px-5 py-4 font-semibold text-slate-900">${escapeHtml(student.name)}</td>
+        <td class="px-5 py-4">
+          <span class="inline-flex items-center rounded-xl bg-slate-100 px-3 py-1.5 font-mono text-xs text-slate-700 border border-slate-200">
+            ${escapeHtml(student.matric_no)}
+          </span>
+        </td>
+        <td class="px-5 py-4 text-slate-600">${escapeHtml(student.department)}</td>
+        <td class="px-5 py-4">
+          <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${levelBadgeClass(student.level)}">
+            ${escapeHtml(student.level)}
+          </span>
+        </td>
+        <td class="px-5 py-4">
+          <div class="flex items-center gap-2">
+            <button
+              onclick="editStudent('${escapeHtml(student.id)}')"
+              class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 hover:bg-blue-50 hover:text-primary hover:border-blue-100 transition-all"
+              title="Edit student"
+              aria-label="Edit student"
+            >
+              ${actionButtonSvg("edit")}
+            </button>
+
+            <button
+              onclick="deleteStudent('${escapeHtml(student.id)}')"
+              class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 hover:bg-red-50 hover:text-red-600 hover:border-red-100 transition-all"
+              title="Delete student"
+              aria-label="Delete student"
+            >
+              ${actionButtonSvg("delete")}
+            </button>
+          </div>
+        </td>
+      </tr>
+    `;
+  });
+
+  tbody.innerHTML = html;
 }
 
-// Students CRUD
+// ---------- Render courses ----------
+function displayCourses() {
+  const tbody = document.getElementById("coursesBody");
+  if (!tbody) return;
+
+  if (!courses.length) {
+    tbody.innerHTML = makeEmptyRow(
+      4,
+      "No courses found",
+      'Click "Add Course" to create your first course record.',
+      "courses",
+    );
+    return;
+  }
+
+  let html = "";
+
+  courses.forEach((course) => {
+    html += `
+      <tr data-course-id="${escapeHtml(course.id)}" class="hover:bg-slate-50 transition-colors">
+        <td class="px-5 py-4">
+          <span class="inline-flex items-center rounded-xl bg-blue-50 px-3 py-1.5 font-mono text-sm font-semibold text-primary border border-blue-100">
+            ${escapeHtml(course.course_code)}
+          </span>
+        </td>
+        <td class="px-5 py-4 font-semibold text-slate-800">${escapeHtml(course.course_title)}</td>
+        <td class="px-5 py-4">
+          <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-100">
+            ${escapeHtml(course.credit_unit)} ${Number(course.credit_unit) === 1 ? "Unit" : "Units"}
+          </span>
+        </td>
+        <td class="px-5 py-4">
+          <div class="flex items-center gap-2">
+            <button
+              onclick="editCourse('${escapeHtml(course.id)}')"
+              class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 hover:bg-blue-50 hover:text-primary hover:border-blue-100 transition-all"
+              title="Edit course"
+              aria-label="Edit course"
+            >
+              ${actionButtonSvg("edit")}
+            </button>
+
+            <button
+              onclick="deleteCourse('${escapeHtml(course.id)}')"
+              class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 hover:bg-red-50 hover:text-red-600 hover:border-red-100 transition-all"
+              title="Delete course"
+              aria-label="Delete course"
+            >
+              ${actionButtonSvg("delete")}
+            </button>
+          </div>
+        </td>
+      </tr>
+    `;
+  });
+
+  tbody.innerHTML = html;
+}
+
+// ---------- Students CRUD ----------
 async function loadStudents() {
-    try {
-        students = await apiCall("/admin/students/");
-        displayStudents();
-    } catch (error) {
-        console.error("Failed to load students:", error);
-        showToast("Failed to load students", "error");
-    }
+  try {
+    students = await apiCall("/admin/students/");
+    displayStudents();
+  } catch (error) {
+    console.error("Failed to load students:", error);
+    showToast("Failed to load students", "error");
+  }
 }
 
 function editStudent(id) {
-    const student = students.find((s) => s.id === id);
-    if (student) {
-        document.getElementById("studentId").value = student.id;
-        document.getElementById("studentName").value = student.name;
-        document.getElementById("studentMatric").value = student.matric_no;
-        document.getElementById("studentDepartment").value = student.department;
-        document.getElementById("studentLevel").value = student.level;
-        document.getElementById("studentModalTitle").textContent = "Edit Student";
-        openModal("studentModal");
-    } else {
-        // If not found in local array, fetch from API
-        apiCall(`/admin/students/${id}`)
-            .then((student) => {
-                document.getElementById("studentId").value = student.id;
-                document.getElementById("studentName").value = student.name;
-                document.getElementById("studentMatric").value = student.matric_no;
-                document.getElementById("studentDepartment").value = student.department;
-                document.getElementById("studentLevel").value = student.level;
-                document.getElementById("studentModalTitle").textContent = "Edit Student";
-                openModal("studentModal");
-            })
-            .catch((error) => {
-                console.error("Failed to load student for edit:", error);
-                showToast("Failed to load student details", "error");
-            });
-    }
+  const student = students.find((s) => s.id === id);
+
+  if (student) {
+    document.getElementById("studentId").value = student.id;
+    document.getElementById("studentName").value = student.name;
+    document.getElementById("studentMatric").value = student.matric_no;
+    document.getElementById("studentDepartment").value = student.department;
+    document.getElementById("studentLevel").value = student.level;
+    document.getElementById("studentModalTitle").textContent = "Edit Student";
+    openModal("studentModal");
+    return;
+  }
+
+  apiCall(`/admin/students/${id}`)
+    .then((result) => {
+      document.getElementById("studentId").value = result.id;
+      document.getElementById("studentName").value = result.name;
+      document.getElementById("studentMatric").value = result.matric_no;
+      document.getElementById("studentDepartment").value = result.department;
+      document.getElementById("studentLevel").value = result.level;
+      document.getElementById("studentModalTitle").textContent = "Edit Student";
+      openModal("studentModal");
+    })
+    .catch((error) => {
+      console.error("Failed to load student for edit:", error);
+      showToast("Failed to load student details", "error");
+    });
 }
 
 async function deleteStudent(id) {
-    const confirmed = await showConfirm("Are you sure you want to delete this student? This action cannot be undone.");
-    if (confirmed) {
-        try {
-            await apiCall(`/admin/students/${id}`, "DELETE");
-            showToast("Student deleted successfully", "success");
+  const confirmed = await showConfirm(
+    "Are you sure you want to delete this student? This action cannot be undone.",
+  );
 
-            // Remove from local array and update display
-            students = students.filter((s) => s.id !== id);
-            displayStudents();
-        } catch (error) {
-            console.error("Failed to delete student:", error);
-            showToast("Failed to delete student", "error");
-        }
-    }
+  if (!confirmed) return;
+
+  try {
+    await apiCall(`/admin/students/${id}`, "DELETE");
+    students = students.filter((s) => s.id !== id);
+    displayStudents();
+    showToast("Student deleted successfully", "success");
+  } catch (error) {
+    console.error("Failed to delete student:", error);
+    showToast("Failed to delete student", "error");
+  }
 }
 
 async function saveStudent(event) {
-    event.preventDefault();
+  event.preventDefault();
 
-    if (!validateForm("studentForm")) return;
+  if (!validateForm("studentForm")) return;
 
-    const studentData = {
-        name: document.getElementById("studentName").value.trim(),
-        matric_no: document.getElementById("studentMatric").value.trim(),
-        department: document.getElementById("studentDepartment").value.trim(),
-        level: parseInt(document.getElementById("studentLevel").value),
-    };
+  const studentData = {
+    name: document.getElementById("studentName").value.trim(),
+    matric_no: document.getElementById("studentMatric").value.trim(),
+    department: document.getElementById("studentDepartment").value.trim(),
+    level: parseInt(document.getElementById("studentLevel").value, 10),
+  };
 
-    // Validate required fields
-    if (!studentData.name || !studentData.matric_no || !studentData.department || !studentData.level) {
-        showToast("Please fill in all fields", "error");
-        return;
+  if (!studentData.name || !studentData.matric_no || !studentData.department || !studentData.level) {
+    showToast("Please fill in all fields", "error");
+    return;
+  }
+
+  const studentId = document.getElementById("studentId").value;
+
+  try {
+    if (studentId) {
+      await apiCall(`/admin/students/${studentId}`, "PUT", studentData);
+      const index = students.findIndex((s) => s.id === studentId);
+      if (index !== -1) students[index] = { ...students[index], ...studentData, id: studentId };
+      showToast("Student updated successfully", "success");
+    } else {
+      const response = await apiCall("/admin/students/", "POST", studentData);
+      students.push(response);
+      showToast("Student added successfully", "success");
     }
 
-    const studentId = document.getElementById("studentId").value;
-
-    try {
-        let response;
-        if (studentId) {
-            response = await apiCall(`/admin/students/${studentId}`, "PUT", studentData);
-            showToast("Student updated successfully", "success");
-
-            // Update local array
-            const index = students.findIndex((s) => s.id === studentId);
-            if (index !== -1) {
-                students[index] = { ...students[index], ...studentData, id: studentId };
-            }
-        } else {
-            response = await apiCall("/admin/students/", "POST", studentData);
-            showToast("Student added successfully", "success");
-
-            // Add to local array
-            students.push(response);
-        }
-
-        closeModal("studentModal");
-        document.getElementById("studentForm").reset();
-        document.getElementById("studentId").value = "";
-        document.getElementById("studentModalTitle").textContent = "Add Student";
-
-        // Refresh display
-        displayStudents();
-    } catch (error) {
-        console.error("Failed to save student:", error);
-        showToast("Failed to save student: " + (error.message || "Unknown error"), "error");
-    }
+    closeModal("studentModal");
+    document.getElementById("studentForm").reset();
+    document.getElementById("studentId").value = "";
+    document.getElementById("studentModalTitle").textContent = "Add Student";
+    displayStudents();
+  } catch (error) {
+    console.error("Failed to save student:", error);
+    showToast(`Failed to save student: ${error.message || "Unknown error"}`, "error");
+  }
 }
 
-// Courses CRUD
+// ---------- Courses CRUD ----------
 async function loadCourses() {
-    try {
-        courses = await apiCall("/admin/courses/");
-        displayCourses();
-    } catch (error) {
-        console.error("Failed to load courses:", error);
-        showToast("Failed to load courses", "error");
-    }
+  try {
+    courses = await apiCall("/admin/courses/");
+    displayCourses();
+  } catch (error) {
+    console.error("Failed to load courses:", error);
+    showToast("Failed to load courses", "error");
+  }
 }
 
 function editCourse(id) {
-    const course = courses.find((c) => c.id === id);
-    if (course) {
-        document.getElementById("courseId").value = course.id;
-        document.getElementById("courseCode").value = course.course_code;
-        document.getElementById("courseTitle").value = course.course_title;
-        document.getElementById("creditUnit").value = course.credit_unit;
-        document.getElementById("courseModalTitle").textContent = "Edit Course";
-        openModal("courseModal");
-    } else {
-        apiCall(`/admin/courses/${id}`)
-            .then((course) => {
-                document.getElementById("courseId").value = course.id;
-                document.getElementById("courseCode").value = course.course_code;
-                document.getElementById("courseTitle").value = course.course_title;
-                document.getElementById("creditUnit").value = course.credit_unit;
-                document.getElementById("courseModalTitle").textContent = "Edit Course";
-                openModal("courseModal");
-            })
-            .catch((error) => {
-                console.error("Failed to load course for edit:", error);
-                showToast("Failed to load course details", "error");
-            });
-    }
+  const course = courses.find((c) => c.id === id);
+
+  if (course) {
+    document.getElementById("courseId").value = course.id;
+    document.getElementById("courseCode").value = course.course_code;
+    document.getElementById("courseTitle").value = course.course_title;
+    document.getElementById("creditUnit").value = course.credit_unit;
+    document.getElementById("courseModalTitle").textContent = "Edit Course";
+    openModal("courseModal");
+    return;
+  }
+
+  apiCall(`/admin/courses/${id}`)
+    .then((result) => {
+      document.getElementById("courseId").value = result.id;
+      document.getElementById("courseCode").value = result.course_code;
+      document.getElementById("courseTitle").value = result.course_title;
+      document.getElementById("creditUnit").value = result.credit_unit;
+      document.getElementById("courseModalTitle").textContent = "Edit Course";
+      openModal("courseModal");
+    })
+    .catch((error) => {
+      console.error("Failed to load course for edit:", error);
+      showToast("Failed to load course details", "error");
+    });
 }
 
 async function deleteCourse(id) {
-    const confirmed = await showConfirm("Are you sure you want to delete this course? This action cannot be undone.");
-    if (confirmed) {
-        try {
-            await apiCall(`/admin/courses/${id}`, "DELETE");
-            showToast("Course deleted successfully", "success");
+  const confirmed = await showConfirm(
+    "Are you sure you want to delete this course? This action cannot be undone.",
+  );
 
-            // Remove from local array and update display
-            courses = courses.filter((c) => c.id !== id);
-            displayCourses();
-        } catch (error) {
-            console.error("Failed to delete course:", error);
-            showToast("Failed to delete course", "error");
-        }
-    }
+  if (!confirmed) return;
+
+  try {
+    await apiCall(`/admin/courses/${id}`, "DELETE");
+    courses = courses.filter((c) => c.id !== id);
+    displayCourses();
+    showToast("Course deleted successfully", "success");
+  } catch (error) {
+    console.error("Failed to delete course:", error);
+    showToast("Failed to delete course", "error");
+  }
 }
 
 async function saveCourse(event) {
-    event.preventDefault();
+  event.preventDefault();
 
-    if (!validateForm("courseForm")) return;
+  if (!validateForm("courseForm")) return;
 
-    const courseData = {
-        course_code: document.getElementById("courseCode").value.trim().toUpperCase(),
-        course_title: document.getElementById("courseTitle").value.trim(),
-        credit_unit: parseInt(document.getElementById("creditUnit").value),
-    };
+  const courseData = {
+    course_code: document.getElementById("courseCode").value.trim().toUpperCase(),
+    course_title: document.getElementById("courseTitle").value.trim(),
+    credit_unit: parseInt(document.getElementById("creditUnit").value, 10),
+  };
 
-    // Validate required fields
-    if (!courseData.course_code || !courseData.course_title || !courseData.credit_unit) {
-        showToast("Please fill in all fields", "error");
-        return;
+  if (!courseData.course_code || !courseData.course_title || !courseData.credit_unit) {
+    showToast("Please fill in all fields", "error");
+    return;
+  }
+
+  const courseId = document.getElementById("courseId").value;
+
+  try {
+    if (courseId) {
+      await apiCall(`/admin/courses/${courseId}`, "PUT", courseData);
+      const index = courses.findIndex((c) => c.id === courseId);
+      if (index !== -1) courses[index] = { ...courses[index], ...courseData, id: courseId };
+      showToast("Course updated successfully", "success");
+    } else {
+      const response = await apiCall("/admin/courses/", "POST", courseData);
+      courses.push(response);
+      showToast("Course added successfully", "success");
     }
 
-    const courseId = document.getElementById("courseId").value;
-
-    try {
-        let response;
-        if (courseId) {
-            response = await apiCall(`/admin/courses/${courseId}`, "PUT", courseData);
-            showToast("Course updated successfully", "success");
-
-            // Update local array
-            const index = courses.findIndex((c) => c.id === courseId);
-            if (index !== -1) {
-                courses[index] = { ...courses[index], ...courseData, id: courseId };
-            }
-        } else {
-            response = await apiCall("/admin/courses/", "POST", courseData);
-            showToast("Course added successfully", "success");
-
-            // Add to local array
-            courses.push(response);
-        }
-
-        closeModal("courseModal");
-        document.getElementById("courseForm").reset();
-        document.getElementById("courseId").value = "";
-        document.getElementById("courseModalTitle").textContent = "Add Course";
-
-        // Refresh display
-        displayCourses();
-    } catch (error) {
-        console.error("Failed to save course:", error);
-        showToast("Failed to save course: " + (error.message || "Unknown error"), "error");
-    }
+    closeModal("courseModal");
+    document.getElementById("courseForm").reset();
+    document.getElementById("courseId").value = "";
+    document.getElementById("courseModalTitle").textContent = "Add Course";
+    displayCourses();
+  } catch (error) {
+    console.error("Failed to save course:", error);
+    showToast(`Failed to save course: ${error.message || "Unknown error"}`, "error");
+  }
 }
 
-// Search functionality
+// ---------- Search ----------
 function searchStudents() {
-    const searchText = document.getElementById("studentSearch").value.toLowerCase().trim();
-    const tbody = document.getElementById("studentsBody");
-    const rows = tbody.rows;
+  const searchText = document.getElementById("studentSearch")?.value.toLowerCase().trim() || "";
+  const tbody = document.getElementById("studentsBody");
+  if (!tbody) return;
 
-    if (!rows) return;
+  const existing = document.getElementById("noSearchResults");
+  if (existing) existing.remove();
 
-    let visibleCount = 0;
+  const rows = Array.from(tbody.querySelectorAll("tr"));
+  let visibleCount = 0;
 
-    for (let row of rows) {
-        if (row.cells && row.cells.length >= 2) {
-            const name = row.cells[0].textContent.toLowerCase();
-            const matric = row.cells[1].textContent.toLowerCase();
+  rows.forEach((row) => {
+    if (row.id === "noSearchResults") return;
+    const cells = row.cells;
+    if (!cells || cells.length < 2) return;
 
-            if (name.includes(searchText) || matric.includes(searchText)) {
-                row.style.display = "";
-                visibleCount++;
-            } else {
-                row.style.display = "none";
-            }
-        }
-    }
+    const name = cells[0].textContent.toLowerCase();
+    const matric = cells[1].textContent.toLowerCase();
+    const match = name.includes(searchText) || matric.includes(searchText);
 
-    // Show "no results" message if needed
-    const existingNoResults = document.getElementById("noSearchResults");
-    if (existingNoResults) {
-        existingNoResults.remove();
-    }
+    row.style.display = match ? "" : "none";
+    if (match) visibleCount++;
+  });
 
-    if (visibleCount === 0 && students.length > 0 && searchText !== "") {
-        const noResultsRow = document.createElement("tr");
-        noResultsRow.id = "noSearchResults";
-        noResultsRow.innerHTML = `
-            <td colspan="5" class="text-center py-16">
-                <div class="flex flex-col items-center justify-center gap-3">
-                    <span class="material-symbols-outlined text-5xl text-slate-300">search_off</span>
-                    <p class="text-slate-500 font-medium">No students matching "${escapeHtml(searchText)}"</p>
-                    <p class="text-sm text-slate-400">Try adjusting your search terms</p>
-                </div>
-            </td>
-        `;
-        tbody.appendChild(noResultsRow);
-    }
+  if (visibleCount === 0 && students.length > 0 && searchText !== "") {
+    const noResultsRow = document.createElement("tr");
+    noResultsRow.id = "noSearchResults";
+    noResultsRow.innerHTML = `
+      <td colspan="5" class="py-16 text-center">
+        <div class="flex flex-col items-center justify-center gap-4 text-slate-400">
+          <div class="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center">
+            ${emptyStateSvg("generic")}
+          </div>
+          <div class="space-y-1">
+            <p class="text-slate-600 font-semibold">No matching students found</p>
+            <p class="text-sm text-slate-400">Try a different search for "${escapeHtml(searchText)}"</p>
+          </div>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(noResultsRow);
+  }
 }
 
-// Search functionality for courses with Tailwind styling
 function searchCourses() {
-    const searchText = document.getElementById("courseSearch").value.toLowerCase().trim();
-    const tbody = document.getElementById("coursesBody");
-    const rows = tbody.getElementsByTagName("tr");
+  const searchText = document.getElementById("courseSearch")?.value.toLowerCase().trim() || "";
+  const tbody = document.getElementById("coursesBody");
+  if (!tbody) return;
 
-    if (!rows) return;
+  const existing = document.getElementById("noCourseSearchResults");
+  if (existing) existing.remove();
 
-    let visibleCount = 0;
+  const rows = Array.from(tbody.querySelectorAll("tr"));
+  let visibleCount = 0;
 
-    // Remove any existing "no results" message
-    const existingNoResults = document.getElementById("noCourseSearchResults");
-    if (existingNoResults) {
-        existingNoResults.remove();
-    }
+  rows.forEach((row) => {
+    if (row.id === "coursesLoadingRow" || row.id === "noCourseSearchResults") return;
+    const cells = row.cells;
+    if (!cells || cells.length < 2) return;
 
-    for (let row of rows) {
-        // Skip the loading row if it exists
-        if (row.id === "coursesLoadingRow" || row.id === "noCourseSearchResults") continue;
-        
-        if (row.cells && row.cells.length >= 2) {
-            const courseCode = row.cells[0].textContent.toLowerCase();
-            const courseTitle = row.cells[1].textContent.toLowerCase();
+    const code = cells[0].textContent.toLowerCase();
+    const title = cells[1].textContent.toLowerCase();
+    const match = code.includes(searchText) || title.includes(searchText);
 
-            if (courseCode.includes(searchText) || courseTitle.includes(searchText)) {
-                row.style.display = "";
-                visibleCount++;
-            } else {
-                row.style.display = "none";
-            }
-        }
-    }
+    row.style.display = match ? "" : "none";
+    if (match) visibleCount++;
+  });
 
-    // Show "no results" message if needed
-    if (visibleCount === 0 && courses.length > 0 && searchText !== "") {
-        const noResultsRow = document.createElement("tr");
-        noResultsRow.id = "noCourseSearchResults";
-        noResultsRow.innerHTML = `
-            <td colspan="4" class="text-center py-16">
-                <div class="flex flex-col items-center justify-center gap-3">
-                    <span class="material-symbols-outlined text-5xl text-slate-300">search_off</span>
-                    <p class="text-slate-500 font-medium">No matching courses</p>
-                    <p class="text-sm text-slate-400">Try adjusting your search terms</p>
-                </div>
-            </td>
-        `;
-        tbody.appendChild(noResultsRow);
-    }
+  if (visibleCount === 0 && courses.length > 0 && searchText !== "") {
+    const noResultsRow = document.createElement("tr");
+    noResultsRow.id = "noCourseSearchResults";
+    noResultsRow.innerHTML = `
+      <td colspan="4" class="py-16 text-center">
+        <div class="flex flex-col items-center justify-center gap-4 text-slate-400">
+          <div class="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center">
+            ${emptyStateSvg("generic")}
+          </div>
+          <div class="space-y-1">
+            <p class="text-slate-600 font-semibold">No matching courses found</p>
+            <p class="text-sm text-slate-400">Try a different search term</p>
+          </div>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(noResultsRow);
+  }
 }
 
-// Debug functions
+// ---------- Debug ----------
 function debugStudents() {
-    const output = document.getElementById("debugOutput");
-    output.innerHTML = "<h4>👥 Students Debug:</h4>";
-    output.innerHTML += `<p>Local students array: <strong>${students.length}</strong> students</p>`;
-    output.innerHTML += "<pre>" + JSON.stringify(students, null, 2) + "</pre>";
+  const output = document.getElementById("debugOutput");
+  if (!output) return;
 
-    // Also fetch from API to compare - NOW USING API_BASE
-    fetch(`${API_BASE}/admin/students/`)
-        .then((r) => r.json())
-        .then((data) => {
-            output.innerHTML += `<hr><h4>📡 API Response:</h4>`;
-            output.innerHTML += `<p>API returned <strong>${data.length}</strong> students</p>`;
-            output.innerHTML += "<pre>" + JSON.stringify(data, null, 2) + "</pre>";
-        })
-        .catch((err) => {
-            output.innerHTML += `<p style="color: red;">❌ API Error: ${err.message}</p>`;
-        });
+  output.innerHTML = "<h4>Students Debug</h4>";
+  output.innerHTML += `<p>Local students array: <strong>${students.length}</strong> students</p>`;
+  output.innerHTML += `<pre>${escapeHtml(JSON.stringify(students, null, 2))}</pre>`;
+
+  fetch(`${API_BASE}/admin/students/`)
+    .then((r) => r.json())
+    .then((data) => {
+      output.innerHTML += `<hr><h4>API Response</h4>`;
+      output.innerHTML += `<p>API returned <strong>${data.length}</strong> students</p>`;
+      output.innerHTML += `<pre>${escapeHtml(JSON.stringify(data, null, 2))}</pre>`;
+    })
+    .catch((err) => {
+      output.innerHTML += `<p style="color:red;">API Error: ${escapeHtml(err.message)}</p>`;
+    });
 }
 
 function debugCourses() {
-    const output = document.getElementById("debugOutput");
-    output.innerHTML = "<h4>📚 Courses Debug:</h4>";
-    output.innerHTML += `<p>Local courses array: <strong>${courses.length}</strong> courses</p>`;
-    output.innerHTML += "<pre>" + JSON.stringify(courses, null, 2) + "</pre>";
+  const output = document.getElementById("debugOutput");
+  if (!output) return;
 
-    // Also fetch from API to compare - NOW USING API_BASE
-    fetch(`${API_BASE}/admin/courses/`)
-        .then((r) => r.json())
-        .then((data) => {
-            output.innerHTML += `<hr><h4>📡 API Response:</h4>`;
-            output.innerHTML += `<p>API returned <strong>${data.length}</strong> courses</p>`;
-            output.innerHTML += "<pre>" + JSON.stringify(data, null, 2) + "</pre>";
-        })
-        .catch((err) => {
-            output.innerHTML += `<p style="color: red;">❌ API Error: ${err.message}</p>`;
-        });
+  output.innerHTML = "<h4>Courses Debug</h4>";
+  output.innerHTML += `<p>Local courses array: <strong>${courses.length}</strong> courses</p>`;
+  output.innerHTML += `<pre>${escapeHtml(JSON.stringify(courses, null, 2))}</pre>`;
+
+  fetch(`${API_BASE}/admin/courses/`)
+    .then((r) => r.json())
+    .then((data) => {
+      output.innerHTML += `<hr><h4>API Response</h4>`;
+      output.innerHTML += `<p>API returned <strong>${data.length}</strong> courses</p>`;
+      output.innerHTML += `<pre>${escapeHtml(JSON.stringify(data, null, 2))}</pre>`;
+    })
+    .catch((err) => {
+      output.innerHTML += `<p style="color:red;">API Error: ${escapeHtml(err.message)}</p>`;
+    });
 }
 
 function forceReload() {
-    console.log("🔄 Force reloading all data...");
-    showToast("Reloading data...", "info");
-    loadAllData();
+  showToast("Reloading data...", "info");
+  loadAllData();
 }
 
-// Override original functions
+// ---------- Expose ----------
 window.loadStudents = loadStudents;
 window.loadCourses = loadCourses;
+window.editStudent = editStudent;
+window.deleteStudent = deleteStudent;
+window.saveStudent = saveStudent;
+window.editCourse = editCourse;
+window.deleteCourse = deleteCourse;
+window.saveCourse = saveCourse;
+window.searchStudents = searchStudents;
+window.searchCourses = searchCourses;
+window.debugStudents = debugStudents;
+window.debugCourses = debugCourses;
+window.forceReload = forceReload;

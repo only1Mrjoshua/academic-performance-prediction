@@ -3,251 +3,642 @@
   <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Academic System Home Overview</title>
+    <title>Academic Analytics — Institutional Intelligence Platform</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
       rel="stylesheet"
     />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap"
-      rel="stylesheet"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
-      rel="stylesheet"
-    />
-    <script id="tailwind-config">
+
+    <script>
       tailwind.config = {
         darkMode: "class",
         theme: {
           extend: {
             colors: {
               primary: "#135bec",
-              "background-light": "#f6f6f8",
-              "background-dark": "#101622",
+              "primary-dark": "#0f4fd1",
+              accent: "#0f766e",
+              "background-light": "#f8fafc",
+              "background-dark": "#0f172a",
+              "surface-soft": "#f1f5f9",
+              "border-soft": "#e2e8f0",
+              "text-muted": "#64748b",
             },
             fontFamily: {
-              display: ["Inter"],
+              display: ["Inter", "sans-serif"],
+            },
+            boxShadow: {
+              soft: "0 10px 30px rgba(15, 23, 42, 0.06)",
+              premium: "0 24px 80px rgba(15, 23, 42, 0.14)",
             },
             borderRadius: {
-              DEFAULT: "0.5rem",
-              lg: "1rem",
-              xl: "1.5rem",
-              full: "9999px",
+              xl: "1.25rem",
+              "2xl": "1.75rem",
+              "3xl": "2rem",
             },
           },
         },
       };
     </script>
+
     <style>
       .glass-nav {
-        background: rgba(255, 255, 255, 0.7);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
+        background: rgba(255, 255, 255, 0.72);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+      }
+
+      body {
+        overflow-x: hidden;
       }
     </style>
   </head>
+
   <body
-    class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen"
+    class="min-h-screen bg-background-light font-display text-slate-900 relative overflow-x-hidden"
   >
+    <!-- Background -->
+    <div
+      class="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,rgba(19,91,236,0.16),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(15,118,110,0.12),transparent_28%),linear-gradient(to_bottom,#f8fafc,#f8fafc)]"
+    ></div>
+
     <!-- Navigation -->
     <nav
-      class="fixed top-0 left-0 right-0 z-50 glass-nav border-b border-primary/10"
+      class="fixed top-0 left-0 right-0 z-50 glass-nav border-b border-white/60"
     >
       <div
-        class="max-w-[1200px] mx-auto px-6 h-20 flex items-center justify-between"
+        class="max-w-[1280px] mx-auto px-6 h-20 flex items-center justify-between"
       >
-        <div class="flex items-center gap-10">
-          <div class="flex items-center gap-3">
-            <div
-              class="bg-primary text-white p-2 rounded-lg flex items-center justify-center"
+        <a href="index.html" class="flex items-center gap-3">
+          <div
+            class="w-11 h-11 rounded-2xl bg-primary text-white flex items-center justify-center shadow-lg shadow-blue-200/60"
+          >
+            <svg
+              class="w-5 h-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              aria-hidden="true"
             >
-              <span class="material-symbols-outlined text-2xl">school</span>
-            </div>
-            <h2 class="text-xl font-bold tracking-tight text-slate-900">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M3 8.25L12 4l9 4.25-9 4.25L3 8.25Z"
+              />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M6.75 10.25V15.5c0 .7.38 1.34.99 1.67 1.07.58 2.57 1.08 4.26 1.08s3.19-.5 4.26-1.08c.61-.33.99-.97.99-1.67v-5.25"
+              />
+            </svg>
+          </div>
+          <div>
+            <p class="text-[11px] uppercase tracking-[0.22em] text-slate-500">
+              Platform
+            </p>
+            <h2 class="text-lg font-bold tracking-tight text-slate-900">
               Academic Analytics
             </h2>
           </div>
+        </a>
+
+        <div class="hidden md:flex items-center gap-3">
+          <a
+            href="login.html"
+            class="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white/80 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-white transition-all"
+          >
+            Sign In
+          </a>
+          <a
+            href="dashboard.html"
+            class="inline-flex items-center justify-center rounded-2xl bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-100 hover:bg-primary-dark transition-all"
+          >
+            Open Dashboard
+          </a>
         </div>
       </div>
     </nav>
-    <!-- Main Content -->
-    <main class="pt-32 pb-20 px-6">
-      <div class="max-w-[1200px] mx-auto">
-        <!-- Hero Header -->
-        <div class="max-w-[800px] mb-16">
-          <div
-            class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider mb-6"
-          >
-            <span class="relative flex h-2 w-2">
-              <span
-                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"
-              ></span>
-              <span
-                class="relative inline-flex rounded-full h-2 w-2 bg-primary"
-              ></span>
-            </span>
-            University Performance Engine
-          </div>
-          <h1
-            class="text-5xl md:text-6xl font-black text-slate-900 leading-[1.1] tracking-tight mb-6"
-          >
-            Welcome to Academic
-            <span class="text-primary">Performance</span> Prediction
-          </h1>
-          <p class="text-lg text-slate-600 leading-relaxed max-w-2xl">
-            Our premium analytics platform provides university administrators
-            and educators with data-driven insights to enhance student success
-            and institutional excellence.
-          </p>
-        </div>
-        <!-- Feature Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
-          <!-- Admin Card -->
-          <div
-            class="group bg-white p-8 rounded-xl shadow-sm border border-slate-200 hover:shadow-xl hover:border-primary/20 transition-all duration-300"
-          >
+
+    <!-- Main -->
+    <main class="pt-28 md:pt-32 pb-20 px-6">
+      <div class="max-w-[1280px] mx-auto">
+        <!-- Hero -->
+        <section class="grid lg:grid-cols-[1.15fr_0.85fr] gap-10 items-center">
+          <!-- Left -->
+          <div class="max-w-3xl">
             <div
-              class="w-16 h-16 bg-primary/10 text-primary rounded-xl flex items-center justify-center mb-8 group-hover:bg-primary group-hover:text-white transition-all duration-300"
+              class="inline-flex items-center gap-3 rounded-full border border-blue-100 bg-white/80 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-primary shadow-soft mb-7"
             >
-              <span class="material-symbols-outlined text-3xl"
-                >admin_panel_settings</span
-              >
+              <span class="relative flex h-2.5 w-2.5">
+                <span
+                  class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-70"
+                ></span>
+                <span
+                  class="relative inline-flex h-2.5 w-2.5 rounded-full bg-primary"
+                ></span>
+              </span>
+              Institutional Intelligence Platform
             </div>
-            <h3 class="text-2xl font-bold text-slate-900 mb-4">Admin Portal</h3>
-            <p class="text-slate-600 mb-8 leading-relaxed">
-              Manage global system configurations, user permissions, and
-              institutional data integration settings for the entire campus.
+
+            <h1
+              class="text-5xl md:text-6xl lg:text-7xl font-black tracking-[-0.04em] leading-[1.02] text-slate-950"
+            >
+              Predict academic risk
+              <span class="text-primary">before it becomes failure.</span>
+            </h1>
+
+            <p
+              class="mt-7 text-lg md:text-xl leading-8 text-text-muted max-w-2xl"
+            >
+              A premium decision-support platform for universities, lecturers,
+              and administrators to monitor performance, detect risk early, and
+              drive better academic outcomes with confidence.
             </p>
-            <a href="admin.html" class="block w-full">
-              <button
-                type="button"
-                class="w-full flex items-center justify-center gap-2 bg-slate-50 text-slate-900 font-bold py-4 rounded-xl group-hover:bg-primary group-hover:text-white transition-all"
+
+            <div class="mt-9 flex flex-col sm:flex-row gap-4">
+              <a
+                href="login.html"
+                class="inline-flex items-center justify-center rounded-2xl bg-primary px-6 py-4 text-white font-semibold shadow-lg shadow-blue-100 hover:bg-primary-dark transition-all"
               >
-                Access Admin
-                <span class="material-symbols-outlined text-lg"
-                  >arrow_forward</span
+                Access Platform
+              </a>
+              <a
+                href="dashboard.html"
+                class="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white px-6 py-4 text-slate-800 font-semibold hover:bg-slate-50 transition-all"
+              >
+                View Analytics
+              </a>
+            </div>
+
+            <div class="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl">
+              <div
+                class="rounded-2xl border border-white/70 bg-white/80 p-4 shadow-soft"
+              >
+                <p class="text-2xl font-black tracking-tight text-slate-950">
+                  3 Core Roles
+                </p>
+                <p class="mt-1 text-sm text-text-muted">
+                  Admin, lecturer, and analytics access
+                </p>
+              </div>
+              <div
+                class="rounded-2xl border border-white/70 bg-white/80 p-4 shadow-soft"
+              >
+                <p class="text-2xl font-black tracking-tight text-slate-950">
+                  Real-Time
+                </p>
+                <p class="mt-1 text-sm text-text-muted">
+                  Performance monitoring and risk visibility
+                </p>
+              </div>
+              <div
+                class="rounded-2xl border border-white/70 bg-white/80 p-4 shadow-soft"
+              >
+                <p class="text-2xl font-black tracking-tight text-slate-950">
+                  Smarter Decisions
+                </p>
+                <p class="mt-1 text-sm text-text-muted">
+                  Academic planning with predictive support
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right -->
+          <div class="relative">
+            <div
+              class="absolute -top-8 -right-6 w-40 h-40 rounded-full bg-blue-200/40 blur-3xl"
+            ></div>
+            <div
+              class="absolute -bottom-8 -left-4 w-40 h-40 rounded-full bg-teal-200/40 blur-3xl"
+            ></div>
+
+            <div
+              class="relative rounded-[32px] border border-white/70 bg-white/80 p-5 md:p-6 shadow-premium backdrop-blur-sm"
+            >
+              <div
+                class="rounded-[28px] bg-slate-950 text-white p-6 md:p-7 overflow-hidden relative"
+              >
+                <div
+                  class="absolute top-0 right-0 w-40 h-40 bg-blue-500/20 blur-3xl rounded-full"
+                ></div>
+
+                <div class="relative">
+                  <div class="flex items-center justify-between mb-8">
+                    <div>
+                      <p
+                        class="text-[11px] uppercase tracking-[0.22em] text-white/50"
+                      >
+                        Live overview
+                      </p>
+                      <h3 class="text-2xl font-bold mt-2">Risk Intelligence</h3>
+                    </div>
+                    <div
+                      class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-emerald-300"
+                    >
+                      <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                      Active
+                    </div>
+                  </div>
+
+                  <div class="grid sm:grid-cols-2 gap-4 mb-5">
+                    <div
+                      class="rounded-2xl border border-white/10 bg-white/5 p-4"
+                    >
+                      <p class="text-sm text-white/60">Students monitored</p>
+                      <p class="mt-2 text-3xl font-black">2,480</p>
+                      <p class="mt-2 text-xs text-emerald-300">
+                        +12.4% from last term
+                      </p>
+                    </div>
+                    <div
+                      class="rounded-2xl border border-white/10 bg-white/5 p-4"
+                    >
+                      <p class="text-sm text-white/60">At-risk cases</p>
+                      <p class="mt-2 text-3xl font-black">184</p>
+                      <p class="mt-2 text-xs text-amber-300">
+                        Requires early intervention
+                      </p>
+                    </div>
+                  </div>
+
+                  <div
+                    class="rounded-2xl border border-white/10 bg-white/5 p-4 mb-5"
+                  >
+                    <div class="flex items-center justify-between mb-3">
+                      <p class="text-sm text-white/70">Department health</p>
+                      <p class="text-xs text-white/50">Updated now</p>
+                    </div>
+
+                    <div class="space-y-3">
+                      <div>
+                        <div
+                          class="flex items-center justify-between text-sm mb-1.5"
+                        >
+                          <span class="text-white/70">Computer Science</span>
+                          <span class="text-white font-semibold">91%</span>
+                        </div>
+                        <div
+                          class="h-2 rounded-full bg-white/10 overflow-hidden"
+                        >
+                          <div
+                            class="h-full w-[91%] bg-blue-400 rounded-full"
+                          ></div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <div
+                          class="flex items-center justify-between text-sm mb-1.5"
+                        >
+                          <span class="text-white/70">Engineering</span>
+                          <span class="text-white font-semibold">84%</span>
+                        </div>
+                        <div
+                          class="h-2 rounded-full bg-white/10 overflow-hidden"
+                        >
+                          <div
+                            class="h-full w-[84%] bg-teal-400 rounded-full"
+                          ></div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <div
+                          class="flex items-center justify-between text-sm mb-1.5"
+                        >
+                          <span class="text-white/70">Management</span>
+                          <span class="text-white font-semibold">76%</span>
+                        </div>
+                        <div
+                          class="h-2 rounded-full bg-white/10 overflow-hidden"
+                        >
+                          <div
+                            class="h-full w-[76%] bg-amber-400 rounded-full"
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-3 gap-3">
+                    <div
+                      class="rounded-2xl bg-white/5 p-4 border border-white/10"
+                    >
+                      <p class="text-xs text-white/50">Accuracy</p>
+                      <p class="mt-2 text-xl font-bold">94.2%</p>
+                    </div>
+                    <div
+                      class="rounded-2xl bg-white/5 p-4 border border-white/10"
+                    >
+                      <p class="text-xs text-white/50">Lecturers</p>
+                      <p class="mt-2 text-xl font-bold">126</p>
+                    </div>
+                    <div
+                      class="rounded-2xl bg-white/5 p-4 border border-white/10"
+                    >
+                      <p class="text-xs text-white/50">Alerts</p>
+                      <p class="mt-2 text-xl font-bold">37</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Floating mini card -->
+              <div
+                class="absolute -bottom-6 -left-4 sm:left-auto sm:-right-5 rounded-2xl border border-slate-200 bg-white p-4 shadow-premium w-[220px]"
+              >
+                <p class="text-xs uppercase tracking-[0.14em] text-slate-400">
+                  Intervention status
+                </p>
+                <p
+                  class="mt-2 text-2xl font-black tracking-tight text-slate-950"
                 >
-              </button>
-            </a>
+                  68%
+                </p>
+                <p class="mt-1 text-sm text-text-muted">
+                  high-risk students already flagged for review
+                </p>
+              </div>
+            </div>
           </div>
-          <!-- Lecturer Card -->
+        </section>
+
+        <!-- Access Cards -->
+        <section class="mt-24">
+          <div class="max-w-2xl mb-8">
+            <p
+              class="text-xs font-bold uppercase tracking-[0.2em] text-primary mb-3"
+            >
+              Platform Access
+            </p>
+            <h2
+              class="text-3xl md:text-4xl font-black tracking-tight text-slate-950"
+            >
+              One system, three focused workspaces.
+            </h2>
+            <p class="mt-3 text-lg text-text-muted">
+              Every role gets a tailored experience for managing operations,
+              reviewing analytics, and driving student success.
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Admin -->
+            <div
+              class="group rounded-[28px] border border-slate-200/80 bg-white/90 p-7 shadow-soft hover:shadow-premium hover:-translate-y-1 transition-all duration-300"
+            >
+              <div
+                class="w-14 h-14 rounded-2xl bg-blue-50 text-primary flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-white transition-all"
+              >
+                <svg
+                  class="w-6 h-6"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.9"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M9.75 3a2.25 2.25 0 0 0-2.122 1.503L7.2 5.75H5.25A2.25 2.25 0 0 0 3 8v1.5c0 .621.252 1.184.659 1.591l.341.341v7.318A2.25 2.25 0 0 0 6.25 21h11.5A2.25 2.25 0 0 0 20 18.75v-7.318l.341-.341c.407-.407.659-.97.659-1.591V8a2.25 2.25 0 0 0-2.25-2.25H16.8l-.428-1.247A2.25 2.25 0 0 0 14.25 3h-4.5Z"
+                  />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M8.25 13.5h7.5M9 17.25h6"
+                  />
+                </svg>
+              </div>
+
+              <h3 class="text-2xl font-bold tracking-tight text-slate-950 mb-3">
+                Admin Portal
+              </h3>
+              <p class="text-text-muted leading-7 mb-7">
+                Control academic data, manage student and course records, and
+                maintain institutional accuracy from one operational center.
+              </p>
+
+              <a
+                href="admin.html"
+                class="inline-flex items-center justify-center rounded-2xl bg-slate-950 px-5 py-3.5 text-white font-semibold w-full group-hover:bg-primary transition-all"
+              >
+                Access Admin Workspace
+              </a>
+            </div>
+
+            <!-- Lecturer -->
+            <div
+              class="group rounded-[28px] border border-slate-200/80 bg-white/90 p-7 shadow-soft hover:shadow-premium hover:-translate-y-1 transition-all duration-300"
+            >
+              <div
+                class="w-14 h-14 rounded-2xl bg-teal-50 text-accent flex items-center justify-center mb-6 group-hover:bg-accent group-hover:text-white transition-all"
+              >
+                <svg
+                  class="w-6 h-6"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.9"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M12 14.25c3.728 0 6.75-2.518 6.75-5.625S15.728 3 12 3 5.25 5.518 5.25 8.625 8.272 14.25 12 14.25Z"
+                  />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M4.5 20.25c1.79-2.31 4.466-3.75 7.5-3.75 3.034 0 5.71 1.44 7.5 3.75"
+                  />
+                </svg>
+              </div>
+
+              <h3 class="text-2xl font-bold tracking-tight text-slate-950 mb-3">
+                Lecturer Workspace
+              </h3>
+              <p class="text-text-muted leading-7 mb-7">
+                Manage assessments and attendance, review student performance,
+                and support intervention with predictive insights.
+              </p>
+
+              <a
+                href="lecturer.html"
+                class="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 py-3.5 text-slate-800 font-semibold w-full group-hover:bg-accent group-hover:text-white group-hover:border-accent transition-all"
+              >
+                Access Lecturer Workspace
+              </a>
+            </div>
+
+            <!-- Dashboard -->
+            <div
+              class="group rounded-[28px] border border-slate-200/80 bg-white/90 p-7 shadow-soft hover:shadow-premium hover:-translate-y-1 transition-all duration-300"
+            >
+              <div
+                class="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mb-6 group-hover:bg-amber-500 group-hover:text-white transition-all"
+              >
+                <svg
+                  class="w-6 h-6"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.9"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M4.5 19.5h15M7.5 16.5V12m4.5 4.5V9m4.5 7.5V6"
+                  />
+                </svg>
+              </div>
+
+              <h3 class="text-2xl font-bold tracking-tight text-slate-950 mb-3">
+                Analytics Dashboard
+              </h3>
+              <p class="text-text-muted leading-7 mb-7">
+                Track institutional trends, monitor risk distribution, and
+                visualize academic health with executive-level clarity.
+              </p>
+
+              <a
+                href="dashboard.html"
+                class="inline-flex items-center justify-center rounded-2xl bg-slate-100 px-5 py-3.5 text-slate-800 font-semibold w-full group-hover:bg-amber-500 group-hover:text-white transition-all"
+              >
+                Open Analytics Dashboard
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <!-- Trust strip -->
+        <section class="mt-16">
           <div
-            class="group bg-white p-8 rounded-xl shadow-sm border border-slate-200 hover:shadow-xl hover:border-primary/20 transition-all duration-300"
+            class="rounded-[28px] border border-slate-200 bg-white/80 p-6 md:p-7 shadow-soft"
           >
             <div
-              class="w-16 h-16 bg-primary/10 text-primary rounded-xl flex items-center justify-center mb-8 group-hover:bg-primary group-hover:text-white transition-all duration-300"
+              class="grid grid-cols-1 md:grid-cols-4 gap-6 items-start md:items-center"
             >
-              <span class="material-symbols-outlined text-3xl">group</span>
+              <div>
+                <p
+                  class="text-xs uppercase tracking-[0.2em] text-slate-400 font-bold"
+                >
+                  Why it feels premium
+                </p>
+                <h3
+                  class="mt-2 text-xl font-bold tracking-tight text-slate-950"
+                >
+                  Built for serious academic operations
+                </h3>
+              </div>
+
+              <div>
+                <p class="text-sm font-semibold text-slate-950">
+                  Predictive Monitoring
+                </p>
+                <p class="mt-1 text-sm text-text-muted">
+                  Early warning signals for at-risk students
+                </p>
+              </div>
+
+              <div>
+                <p class="text-sm font-semibold text-slate-950">
+                  Unified Role Access
+                </p>
+                <p class="mt-1 text-sm text-text-muted">
+                  Clean experiences for admins and lecturers
+                </p>
+              </div>
+
+              <div>
+                <p class="text-sm font-semibold text-slate-950">
+                  Decision-Ready Insights
+                </p>
+                <p class="mt-1 text-sm text-text-muted">
+                  Clear metrics for action, reporting, and review
+                </p>
+              </div>
             </div>
-            <h3 class="text-2xl font-bold text-slate-900 mb-4">
-              Lecturer Access
-            </h3>
-            <p class="text-slate-600 mb-8 leading-relaxed">
-              Monitor student performance trends, access course-specific
-              analytics, and identify at-risk students through predictive
-              modeling.
-            </p>
-            <a
-              href="lecturer.html"
-              class="w-full flex items-center justify-center gap-2 bg-slate-50 text-slate-900 font-bold py-4 rounded-xl group-hover:bg-primary group-hover:text-white transition-all"
-            >
-              Access Lecturer
-              <span class="material-symbols-outlined text-lg"
-                >arrow_forward</span
-              >
-            </a>
           </div>
-          <!-- Dashboard Card -->
-          <div
-            class="group bg-white p-8 rounded-xl shadow-sm border border-slate-200 hover:shadow-xl hover:border-primary/20 transition-all duration-300"
-          >
-            <div
-              class="w-16 h-16 bg-primary/10 text-primary rounded-xl flex items-center justify-center mb-8 group-hover:bg-primary group-hover:text-white transition-all duration-300"
-            >
-              <span class="material-symbols-outlined text-3xl">dashboard</span>
-            </div>
-            <h3 class="text-2xl font-bold text-slate-900 mb-4">
-              Analytics Dashboard
-            </h3>
-            <p class="text-slate-600 mb-8 leading-relaxed">
-              Visualize comprehensive academic trends across departments with
-              real-time interactive performance metrics and reports.
-            </p>
-            <a
-              href="dashboard.html"
-              class="w-full flex items-center justify-center gap-2 bg-slate-50 text-slate-900 font-bold py-4 rounded-xl group-hover:bg-primary group-hover:text-white transition-all"
-            >
-              View Dashboard
-              <span class="material-symbols-outlined text-lg"
-                >arrow_forward</span
-              >
-            </a>
-          </div>
-        </div>
+        </section>
       </div>
     </main>
-    <!-- Footer (reduced size, brand next to copyright) -->
-    <footer class="border-t border-slate-200 bg-white py-4">
-      <!-- reduced py-16/8 to py-4 -->
-      <div class="max-w-[1200px] mx-auto px-6">
-        <!-- single line container: left side brand, right side copyright (or combined) -->
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-200/80 bg-white/70 backdrop-blur-sm">
+      <div class="max-w-[1280px] mx-auto px-6 py-5">
         <div
-          class="flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-2 text-sm text-slate-500"
+          class="flex flex-col sm:flex-row items-center justify-between gap-3 text-sm"
         >
-          <!-- brand and copyright together -->
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-3">
             <div
-              class="bg-primary text-white p-1 rounded flex items-center justify-center"
+              class="w-9 h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center"
             >
-              <span class="material-symbols-outlined text-base">school</span>
+              <svg
+                class="w-4 h-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M3 8.25L12 4l9 4.25-9 4.25L3 8.25Z"
+                />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M6.75 10.25V15.5c0 .7.38 1.34.99 1.67 1.07.58 2.57 1.08 4.26 1.08s3.19-.5 4.26-1.08c.61-.33.99-.97.99-1.67v-5.25"
+                />
+              </svg>
             </div>
-            <span class="font-semibold text-slate-900">Academic Analytics</span>
+            <div>
+              <p class="font-semibold text-slate-950">Academic Analytics</p>
+              <p class="text-slate-500 text-xs">
+                Institutional insight and academic decision support
+              </p>
+            </div>
           </div>
-          <div class="text-slate-400">
-            © 2026 University Academic Systems. Built for Institutional
-            Excellence.
-          </div>
+
+          <p class="text-slate-400 text-center sm:text-right">
+            © 2026 University Academic Systems. Designed for premium academic
+            operations.
+          </p>
         </div>
       </div>
     </footer>
+
     <script src="js/config.js"></script>
     <script src="js/auth.js"></script>
     <script>
-      // Update navigation based on auth state
       document.addEventListener("DOMContentLoaded", function () {
-        const navRight = document.querySelector(
-          ".flex.items-center.gap-3:last-child",
+        const token = localStorage.getItem("authToken");
+        const role = localStorage.getItem("userRole");
+        const desktopNav = document.querySelector(
+          ".hidden.md\\:flex.items-center.gap-3",
         );
-        if (navRight) {
-          const token = localStorage.getItem("authToken");
-          const role = localStorage.getItem("userRole");
 
-          if (token) {
-            navRight.innerHTML = `
-                    <span class="text-sm text-slate-600 hidden md:inline">
-                        ${role === "admin" ? "👑 Admin" : "👨‍🏫 Lecturer"}
-                    </span>
-                    <button 
-                        onclick="logout()"
-                        class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg flex items-center gap-2 transition-all"
-                    >
-                        <span class="material-symbols-outlined text-lg">logout</span>
-                        <span class="hidden sm:inline">Logout</span>
-                    </button>
-                `;
-          } else {
-            navRight.innerHTML = `
-                    <a 
-                        href="/frontend/login.html"
-                        class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-all"
-                    >
-                        <span class="material-symbols-outlined text-lg">login</span>
-                        <span>Login</span>
-                    </a>
-                `;
-          }
+        if (desktopNav && token) {
+          desktopNav.innerHTML = `
+            <div class="hidden lg:flex items-center gap-2 rounded-full border border-slate-200 bg-white/80 px-3 py-2 text-xs font-semibold text-slate-600">
+              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+              ${role === "admin" ? "Admin Session" : "Lecturer Session"}
+            </div>
+            <a
+              href="${role === "admin" ? "admin.html" : "lecturer.html"}"
+              class="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white/80 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-white transition-all"
+            >
+              Open Workspace
+            </a>
+            <button
+              onclick="logout()"
+              class="inline-flex items-center justify-center rounded-2xl bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-100 hover:bg-primary-dark transition-all"
+            >
+              Logout
+            </button>
+          `;
         }
       });
     </script>
