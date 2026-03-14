@@ -89,6 +89,27 @@
   <body
     class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen antialiased overflow-x-hidden"
   >
+    <script>
+      // Check authentication before rendering page
+      (function () {
+        const token = localStorage.getItem("authToken");
+        const role = localStorage.getItem("userRole");
+
+        if (!token) {
+          window.location.href = "/login.html";
+          return;
+        }
+
+        // For admin page, verify admin role
+        if (
+          window.location.pathname.includes("admin.html") &&
+          role !== "admin"
+        ) {
+          window.location.href = "/unauthorized.html";
+          return;
+        }
+      })();
+    </script>
     <!-- glass navigation exactly like admin (same logo, same structure, lecturer link active) -->
     <nav
       class="fixed top-0 left-0 right-0 z-50 glass-nav border-b border-primary/10"
@@ -567,10 +588,14 @@
         </div>
       </div>
     </div>
-
-    <!-- scripts exactly as before (order preserved) -->
+    <!-- Load scripts in correct order -->
     <script src="js/config.js"></script>
+    <!-- Has API_BASE and apiCall -->
+    <script src="js/auth.js"></script>
+    <!-- Authentication functions -->
     <script src="js/main.js"></script>
+    <!-- Modal, form validation, etc. -->
     <script src="js/lecturer.js"></script>
+    <!-- Page-specific code -->
   </body>
 </html>

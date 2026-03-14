@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from bson import ObjectId
 from typing import List, Optional
 from database import (
@@ -8,11 +8,14 @@ from database import (
 )
 from models import RiskStatistics, StudentRiskDetail, ModelMetrics
 from ml.model import prediction_model
+from routes.auth import get_current_active_user
 
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
 
 @router.get("/statistics", response_model=RiskStatistics)
-async def get_risk_statistics():
+async def get_risk_statistics(
+    current_user = Depends(get_current_active_user)  # Any authenticated user
+):
     """Get risk level statistics"""
     predictions = await prediction_collection.find().to_list(length=None)
     

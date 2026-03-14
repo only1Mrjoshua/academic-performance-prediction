@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from bson import ObjectId
 from typing import List
 from database import (
@@ -7,12 +7,21 @@ from database import (
     assessment_helper, attendance_helper
 )
 from models import Assessment, Attendance, AssessmentResponse, AttendanceResponse
+from routes.auth import require_role, get_current_active_user
 
 router = APIRouter(prefix="/lecturer", tags=["lecturer"])
 
-# Assessment CRUD operations
+# Both admin and lecturer can access
+async def get_current_lecturer_or_admin(current_user = Depends(get_current_active_user)):
+    if current_user.role not in ["admin", "lecturer"]:
+        raise HTTPException(status_code=403, detail="Access denied")
+    return current_user
+
 @router.post("/assessments/", response_model=AssessmentResponse)
-async def create_assessment(assessment: Assessment):
+async def create_assessment(
+    assessment: Assessment,
+    current_user = Depends(get_current_lecturer_or_admin)
+):
     # Verify student and course exist
     student = await student_collection.find_one({"_id": ObjectId(assessment.student_id)})
     if not student:
@@ -131,3 +140,27 @@ async def delete_attendance(attendance_id: str):
         return {"message": "Attendance deleted successfully"}
     
     raise HTTPException(status_code=404, detail="Attendance not found")
+
+@router.get("/students/", response_model=List[dict])
+async def get_students_for_lecturer(current_user = Depends(get_current_lecturer_or_admin)):
+    """Get basic student info for dropdowns - accessible by lecturers"""
+    students = []
+    async for student in student_collection.find({}, {"name": 1, "matric_no": 1}):
+        students.append({
+            "id": str(student["_id"]),
+            "name": student["name"],
+            "matric_no": student["matric_no"]
+        })
+    return students
+
+@router.get("/courses/", response_model=List[dict])
+async def get_courses_for_lecturer(current_user = Depends(get_current_lecturer_or_admin)):
+    """Get basic course info for dropdowns - accessible by lecturers"""
+    courses = []
+    async for course in course_collection.find({}, {"course_code": 1, "course_title": 1}):
+        courses.append({
+            "id": str(course["_id"]),
+            "course_code": course["course_code"],
+            "course_title": course["course_title"]
+        })
+    return courses

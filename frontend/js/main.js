@@ -1,34 +1,8 @@
-// Get API Base URL from config.js
-const API_BASE = CONFIG.API_BASE;
+// Get API Base URL from config.js - REMOVE THIS LINE
+// const API_BASE = CONFIG.API_BASE;  // DELETE THIS LINE
 
 // Optional: Log which URL is being used (helpful for debugging)
-console.log('API URL:', API_BASE);
-
-// Utility Functions
-async function apiCall(endpoint, method = 'GET', data = null) {
-    const options = {
-        method,
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    };
-    
-    if (data) {
-        options.body = JSON.stringify(data);
-    }
-    
-    try {
-        const response = await fetch(`${API_BASE}${endpoint}`, options);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return await response.json();
-    } catch (error) {
-        console.error('API call failed:', error);
-        showAlert('API call failed: ' + error.message, 'danger');
-        throw error;
-    }
-}
+console.log('API URL from main.js:', typeof API_BASE !== 'undefined' ? API_BASE : 'API_BASE not defined');
 
 // Alert System
 function showAlert(message, type = 'success') {
@@ -126,7 +100,7 @@ function validateForm(formId) {
     return true;
 }
 
-// Load navigation
+// Load navigation and check auth
 document.addEventListener('DOMContentLoaded', function() {
     // Highlight current page in navigation
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';
@@ -149,7 +123,6 @@ document.addEventListener('DOMContentLoaded', function() {
 // Export functions if using modules (optional)
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
-        apiCall,
         showAlert,
         openModal,
         closeModal,

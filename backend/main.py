@@ -3,10 +3,13 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 import uvicorn
+from pathlib import Path
 
-from routes import admin, lecturer, prediction, dashboard
+from routes import admin, lecturer, prediction, dashboard, auth
 from ml.model import prediction_model
+from routes.auth import create_default_users
 
 # Load environment variables from .env file
 load_dotenv()
@@ -15,16 +18,11 @@ load_dotenv()
 HOST = os.getenv("HOST", "0.0.0.0")
 PORT = int(os.getenv("PORT", 8000))
 RELOAD = os.getenv("RELOAD", "True").lower() == "true"
-ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:8080").split(",")
-
-# Security config
-SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-here")
-ALGORITHM = os.getenv("ALGORITHM", "HS256")
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 30))
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:5500,http://127.0.0.1:5500,http://localhost:8000").split(",")
 
 app = FastAPI(title="Academic Performance Prediction System")
 
-# CORS middleware with environment variables
+# CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
@@ -33,27 +31,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include routers
-app.include_router(admin.router)
-app.include_router(lecturer.router)
-app.include_router(prediction.router)
-app.include_router(dashboard.router)
+# Include routers WITHOUT the /api prefix
+app.include_router(auth.router)      # Routes will be /auth/*
+app.include_router(admin.router)     # Routes will be /admin/*
+app.include_router(lecturer.router)  # Routes will be /lecturer/*
+app.include_router(prediction.router) # Routes will be /prediction/*
+app.include_router(dashboard.router)  # Routes will be /dashboard/*
 
-# Mount static files for frontend
-frontend_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend")
-if os.path.exists(frontend_path):
-    app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
-
-@app.on_event("startup")
-async def startup_event():
-    """Initialize model on startup"""
-    print(f"Connecting to MongoDB: {os.getenv('MONGODB_DB')}")
-    if not prediction_model.load_model():
-        print("Training new model...")
-        prediction_model.train_model()
-        print("Model trained successfully")
-
-@app.get("/api/health")
+# Health check endpoint
+@app.get("/health")
 async def health_check():
     return {
         "status": "healthy", 
@@ -62,6 +48,35 @@ async def health_check():
         "port": PORT
     }
 
+# Test endpoint
+@app.get("/test")
+async def test_api():
+    return {"message": "API is working", "status": "ok"}
+
+@app.on_event("startup")
+async def startup_event():
+    """Initialize model and create default users on startup"""
+    print(f"🚀 Starting up - MongoDB: {os.getenv('MONGODB_DB')}")
+    
+    # Create default admin and lecturer users
+    try:
+        await create_default_users()
+        print("✅ Default users created/verified")
+    except Exception as e:
+        print(f"⚠️ Error creating default users: {e}")
+    
+    # Initialize ML model
+    try:
+        if not prediction_model.load_model():
+            print("🔄 Training new model...")
+            prediction_model.train_model()
+            print("✅ Model trained successfully")
+        else:
+            print("✅ Model loaded successfully")
+    except Exception as e:
+        print(f"⚠️ Error with ML model: {e}")
+
 if __name__ == "__main__":
-    print(f"Starting server on {HOST}:{PORT}")
+    print(f"🌟 Starting server on {HOST}:{PORT}")
+    print(f"📝 API Documentation: http://{HOST if HOST != '0.0.0.0' else 'localhost'}:{PORT}/docs")
     uvicorn.run("main:app", host=HOST, port=PORT, reload=RELOAD)

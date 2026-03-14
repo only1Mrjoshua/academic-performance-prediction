@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from bson import ObjectId
 from typing import List
 from database import (
@@ -6,19 +6,28 @@ from database import (
     student_helper, course_helper
 )
 from models import Student, Course, StudentResponse, CourseResponse
+from routes.auth import require_role
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
+# Protect all admin routes
+admin_only = require_role("admin")
+
 # Student CRUD operations
 @router.post("/students/", response_model=StudentResponse)
-async def create_student(student: Student):
+async def create_student(
+    student: Student, 
+    current_user = Depends(admin_only)  # Only admins can create
+):
     student_dict = student.dict()
     result = await student_collection.insert_one(student_dict)
     new_student = await student_collection.find_one({"_id": result.inserted_id})
     return student_helper(new_student)
 
 @router.get("/students/", response_model=List[StudentResponse])
-async def get_all_students():
+async def get_all_students(
+    current_user = Depends(require_role("admin"))  # Only admins can view
+):
     students = []
     async for student in student_collection.find():
         students.append(student_helper(student))

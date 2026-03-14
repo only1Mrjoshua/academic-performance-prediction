@@ -164,39 +164,67 @@ async function loadAllData() {
         showLoading("assessments");
         showLoading("attendance");
 
-        // Load all data in parallel
-        const [studentsData, coursesData, assessmentsData, attendanceData] =
-            await Promise.all([
-                apiCall("/admin/students/").catch((err) => {
-                    console.error("Failed to load students:", err);
-                    return [];
-                }),
-                apiCall("/admin/courses/").catch((err) => {
-                    console.error("Failed to load courses:", err);
-                    return [];
-                }),
-                apiCall("/lecturer/assessments/").catch((err) => {
-                    console.error("Failed to load assessments:", err);
-                    return [];
-                }),
-                apiCall("/lecturer/attendance/").catch((err) => {
-                    console.error("Failed to load attendance:", err);
-                    return [];
-                }),
-            ]);
+        // Load ONLY lecturer-specific data - remove admin/students and admin/courses
+        const [assessmentsData, attendanceData] = await Promise.all([
+            apiCall("/lecturer/assessments/").catch((err) => {
+                console.error("Failed to load assessments:", err);
+                return [];
+            }),
+            apiCall("/lecturer/attendance/").catch((err) => {
+                console.error("Failed to load attendance:", err);
+                return [];
+            }),
+        ]);
 
         // Update global variables
-        students = studentsData || [];
-        courses = coursesData || [];
         assessments = assessmentsData || [];
         attendance = attendanceData || [];
 
         console.log("📊 Data loaded:", {
-            students: students.length,
-            courses: courses.length,
             assessments: assessments.length,
             attendance: attendance.length,
         });
+
+        // Extract unique student IDs and course IDs from assessments and attendance
+        const studentIds = new Set();
+        const courseIds = new Set();
+        
+        // Add IDs from assessments
+        assessments.forEach(a => {
+            if (a.student_id) studentIds.add(a.student_id);
+            if (a.course_id) courseIds.add(a.course_id);
+        });
+        
+        // Add IDs from attendance
+        attendance.forEach(a => {
+            if (a.student_id) studentIds.add(a.student_id);
+            if (a.course_id) courseIds.add(a.course_id);
+        });
+        
+        console.log(`📊 Found ${studentIds.size} unique students and ${courseIds.size} unique courses from records`);
+        
+        // Try to get student details if we have a dedicated endpoint for lecturers
+        // If not, we'll just use the IDs and display them without names
+        try {
+            // Attempt to get student details if there's a lecturer-friendly endpoint
+            // You may need to create this endpoint in your backend
+            const studentsData = await apiCall("/lecturer/students/").catch(() => []);
+            if (studentsData.length > 0) {
+                students = studentsData;
+            }
+        } catch (e) {
+            console.log("Could not load student details, will display IDs only");
+        }
+        
+        // Try to get course details
+        try {
+            const coursesData = await apiCall("/lecturer/courses/").catch(() => []);
+            if (coursesData.length > 0) {
+                courses = coursesData;
+            }
+        } catch (e) {
+            console.log("Could not load course details, will display IDs only");
+        }
 
         // Populate dropdowns and display data
         populateSelects();
@@ -324,63 +352,47 @@ function displayAssessments() {
     let displayCount = 0;
 
     assessments.forEach((assessment) => {
-        // Find matching student and course
+        // Try to find matching student and course
         const student = students.find((s) => s.id === assessment.student_id);
         const course = courses.find((c) => c.id === assessment.course_id);
+        
+        // Get student name or display ID
+        const studentName = student ? student.name : `Student ID: ${assessment.student_id.substring(0, 8)}...`;
+        
+        // Get course code or display ID
+        const courseCode = course ? course.course_code : `Course ID: ${assessment.course_id.substring(0, 8)}...`;
 
-        if (student && course) {
-            const total = (assessment.test_score || 0) + 
-                         (assessment.assignment_score || 0) + 
-                         (assessment.exam_score || 0);
-            displayCount++;
+        const total = (assessment.test_score || 0) + 
+                     (assessment.assignment_score || 0) + 
+                     (assessment.exam_score || 0);
+        displayCount++;
 
-            html += `
-                <tr class="border-b border-slate-100 hover:bg-slate-50/50 transition-colors">
-                    <td class="py-4 pl-2">${escapeHtml(student.name)}</td>
-                    <td class="py-4">${escapeHtml(course.course_code)}</td>
-                    <td class="py-4">${assessment.test_score || 0}</td>
-                    <td class="py-4">${assessment.assignment_score || 0}</td>
-                    <td class="py-4">${assessment.exam_score || 0}</td>
-                    <td class="py-4"><span class="font-bold text-primary">${total}</span></td>
-                    <td class="py-4 pr-2">
-                        <div class="flex items-center gap-2">
-                            <button onclick="editAssessment('${escapeHtml(assessment.id)}')" 
-                                class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all flex items-center gap-1">
-                                <span class="material-symbols-outlined text-sm">edit</span> Edit
-                            </button>
-                            <button onclick="deleteAssessment('${escapeHtml(assessment.id)}')" 
-                                class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-50 hover:bg-red-100 text-red-600 transition-all flex items-center gap-1">
-                                <span class="material-symbols-outlined text-sm">delete</span> Delete
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            `;
-        } else {
-            console.warn("⚠️ Could not match assessment:", {
-                assessment,
-                studentFound: !!student,
-                courseFound: !!course,
-            });
-        }
-    });
-
-    if (displayCount === 0 && assessments.length > 0) {
-        html = `
-            <tr>
-                <td colspan="7" class="text-center py-12">
-                    <span class="material-symbols-outlined text-4xl text-amber-300 mb-2">warning</span>
-                    <p class="text-amber-600 font-medium">❌ Found ${assessments.length} assessments but couldn't match with students/courses.</p>
-                    <p class="text-sm text-slate-400 mt-1">Check console for details.</p>
+        html += `
+            <tr class="border-b border-slate-100 hover:bg-slate-50/50 transition-colors">
+                <td class="py-4 pl-2">${escapeHtml(studentName)}</td>
+                <td class="py-4">${escapeHtml(courseCode)}</td>
+                <td class="py-4">${assessment.test_score || 0}</td>
+                <td class="py-4">${assessment.assignment_score || 0}</td>
+                <td class="py-4">${assessment.exam_score || 0}</td>
+                <td class="py-4"><span class="font-bold text-primary">${total}</span></td>
+                <td class="py-4 pr-2">
+                    <div class="flex items-center gap-2">
+                        <button onclick="editAssessment('${escapeHtml(assessment.id)}')" 
+                            class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all flex items-center gap-1">
+                            <span class="material-symbols-outlined text-sm">edit</span> Edit
+                        </button>
+                        <button onclick="deleteAssessment('${escapeHtml(assessment.id)}')" 
+                            class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-50 hover:bg-red-100 text-red-600 transition-all flex items-center gap-1">
+                            <span class="material-symbols-outlined text-sm">delete</span> Delete
+                        </button>
+                    </div>
                 </td>
             </tr>
         `;
-    }
+    });
 
     tbody.innerHTML = html;
-    console.log(
-        `✅ Displayed ${displayCount} out of ${assessments.length} assessments`,
-    );
+    console.log(`✅ Displayed ${displayCount} out of ${assessments.length} assessments`);
 }
 
 // Display attendance in table
@@ -412,45 +424,44 @@ function displayAttendance() {
     attendance.forEach((record) => {
         const student = students.find((s) => s.id === record.student_id);
         const course = courses.find((c) => c.id === record.course_id);
-
-        if (student && course) {
-            displayCount++;
-            
-            // Determine color based on attendance percentage
-            let badgeColor = "text-green-600 bg-green-50";
-            if (record.attendance_percentage < 75) badgeColor = "text-amber-600 bg-amber-50";
-            if (record.attendance_percentage < 60) badgeColor = "text-red-600 bg-red-50";
-            
-            html += `
-                <tr class="border-b border-slate-100 hover:bg-slate-50/50 transition-colors">
-                    <td class="py-4 pl-2">${escapeHtml(student.name)}</td>
-                    <td class="py-4">${escapeHtml(course.course_code)}</td>
-                    <td class="py-4">
-                        <span class="px-2 py-1 rounded-full text-xs font-semibold ${badgeColor}">
-                            ${record.attendance_percentage || 0}%
-                        </span>
-                    </td>
-                    <td class="py-4 pr-2">
-                        <div class="flex items-center gap-2">
-                            <button onclick="editAttendance('${escapeHtml(record.id)}')" 
-                                class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all flex items-center gap-1">
-                                <span class="material-symbols-outlined text-sm">edit</span> Edit
-                            </button>
-                            <button onclick="deleteAttendance('${escapeHtml(record.id)}')" 
-                                class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-50 hover:bg-red-100 text-red-600 transition-all flex items-center gap-1">
-                                <span class="material-symbols-outlined text-sm">delete</span> Delete
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            `;
-        }
+        
+        const studentName = student ? student.name : `Student ID: ${record.student_id.substring(0, 8)}...`;
+        const courseCode = course ? course.course_code : `Course ID: ${record.course_id.substring(0, 8)}...`;
+        
+        displayCount++;
+        
+        // Determine color based on attendance percentage
+        let badgeColor = "text-green-600 bg-green-50";
+        if (record.attendance_percentage < 75) badgeColor = "text-amber-600 bg-amber-50";
+        if (record.attendance_percentage < 60) badgeColor = "text-red-600 bg-red-50";
+        
+        html += `
+            <tr class="border-b border-slate-100 hover:bg-slate-50/50 transition-colors">
+                <td class="py-4 pl-2">${escapeHtml(studentName)}</td>
+                <td class="py-4">${escapeHtml(courseCode)}</td>
+                <td class="py-4">
+                    <span class="px-2 py-1 rounded-full text-xs font-semibold ${badgeColor}">
+                        ${record.attendance_percentage || 0}%
+                    </span>
+                </td>
+                <td class="py-4 pr-2">
+                    <div class="flex items-center gap-2">
+                        <button onclick="editAttendance('${escapeHtml(record.id)}')" 
+                            class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all flex items-center gap-1">
+                            <span class="material-symbols-outlined text-sm">edit</span> Edit
+                        </button>
+                        <button onclick="deleteAttendance('${escapeHtml(record.id)}')" 
+                            class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-50 hover:bg-red-100 text-red-600 transition-all flex items-center gap-1">
+                            <span class="material-symbols-outlined text-sm">delete</span> Delete
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
     });
 
     tbody.innerHTML = html;
-    console.log(
-        `✅ Displayed ${displayCount} out of ${attendance.length} attendance records`,
-    );
+    console.log(`✅ Displayed ${displayCount} out of ${attendance.length} attendance records`);
 }
 
 // Assessment CRUD operations

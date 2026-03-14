@@ -212,5 +212,44 @@
         </div>
       </div>
     </footer>
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+      // Update navigation based on auth state
+      document.addEventListener("DOMContentLoaded", function () {
+        const navRight = document.querySelector(
+          ".flex.items-center.gap-3:last-child",
+        );
+        if (navRight) {
+          const token = localStorage.getItem("authToken");
+          const role = localStorage.getItem("userRole");
+
+          if (token) {
+            navRight.innerHTML = `
+                    <span class="text-sm text-slate-600 hidden md:inline">
+                        ${role === "admin" ? "👑 Admin" : "👨‍🏫 Lecturer"}
+                    </span>
+                    <button 
+                        onclick="logout()"
+                        class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg flex items-center gap-2 transition-all"
+                    >
+                        <span class="material-symbols-outlined text-lg">logout</span>
+                        <span class="hidden sm:inline">Logout</span>
+                    </button>
+                `;
+          } else {
+            navRight.innerHTML = `
+                    <a 
+                        href="/frontend/login.html"
+                        class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-all"
+                    >
+                        <span class="material-symbols-outlined text-lg">login</span>
+                        <span>Login</span>
+                    </a>
+                `;
+          }
+        }
+      });
+    </script>
   </body>
 </html>

@@ -107,6 +107,27 @@
   <body
     class="bg-background-light font-display text-slate-900 min-h-screen antialiased overflow-x-hidden"
   >
+    <script>
+      // Check authentication before rendering page
+      (function () {
+        const token = localStorage.getItem("authToken");
+        const role = localStorage.getItem("userRole");
+
+        if (!token) {
+          window.location.href = "/login.html";
+          return;
+        }
+
+        // For admin page, verify admin role
+        if (
+          window.location.pathname.includes("admin.html") &&
+          role !== "admin"
+        ) {
+          window.location.href = "/unauthorized.html";
+          return;
+        }
+      })();
+    </script>
     <!-- ========== FIXED GLASS NAVBAR (EXACTLY LIKE ADMIN) ========== -->
     <nav
       class="fixed top-0 left-0 right-0 z-50 glass-nav border-b border-primary/10"
@@ -406,10 +427,15 @@
       </div>
     </footer>
 
-    <!-- original script tags (preserve logic, IDs, hooks) -->
+    <!-- Load scripts in correct order -->
     <script src="js/config.js"></script>
+    <!-- Has API_BASE and apiCall -->
+    <script src="js/auth.js"></script>
+    <!-- Authentication functions -->
     <script src="js/main.js"></script>
-    <script src="js/dashboard.js"></script>
+    <!-- Modal, form validation, etc. -->
+    <script src="js/admin.js"></script>
+    <!-- Page-specific code -->
 
     <!-- ensure that the existing JS will populate the containers correctly.
        we leave IDs unchanged: statistics, metrics, predictionWarning, etc.
